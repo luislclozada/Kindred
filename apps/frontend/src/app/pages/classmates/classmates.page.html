@@ -1,16 +1,16 @@
 <div class="container">
   <div class="page-head">
-    <h1 class="title">Classmates</h1>
-    <p class="lede">Everyone who shares a course with you, most in common first.</p>
+    <h1 class="title">Compañeros</h1>
+    <p class="lede">Todas las personas que comparten algún curso contigo, primero las que tienen más en común.</p>
   </div>
 
   @if (facade.error(); as message) {
     <div class="alert" role="alert">
       <span>{{ message }}</span>
-      <button type="button" class="btn btn--ghost btn--sm" (click)="facade.load()">Retry</button>
+      <button type="button" class="btn btn--ghost btn--sm" (click)="facade.load()">Reintentar</button>
     </div>
   } @else if (facade.loading()) {
-    <div class="groups" aria-busy="true" aria-label="Loading classmates">
+    <div class="groups" aria-busy="true" aria-label="Cargando compañeros">
       @for (n of skeletons; track n) {
         <div class="skeleton"></div>
       }
@@ -24,13 +24,13 @@
         ratio="4 / 3"
       />
       @if (!facade.hasCourses()) {
-        <h2>No courses, no classmates</h2>
-        <p>Enroll in a course and the people taking it will show up here.</p>
-        <a class="btn" routerLink="/courses">Browse courses</a>
+        <h2>Sin cursos no hay compañeros</h2>
+        <p>Inscríbete en un curso y aquí aparecerá quién más lo toma.</p>
+        <a class="btn" routerLink="/courses">Ver cursos</a>
       } @else {
-        <h2>You are the first one here</h2>
-        <p>Nobody else shares your courses yet. Try adding another one.</p>
-        <a class="btn" routerLink="/courses">Manage courses</a>
+        <h2>Llegaste primero</h2>
+        <p>Nadie más comparte tus cursos todavía. Prueba inscribirte en otro.</p>
+        <a class="btn" routerLink="/courses">Ir a Mis cursos</a>
       }
     </div>
   } @else {
@@ -40,11 +40,11 @@
           <header class="group__head">
             <span class="group__code">{{ g.course.code }}</span>
             <h2 class="group__title" [id]="'g-' + g.course.code">{{ g.course.title }}</h2>
-            <span class="badge badge--sun">{{ g.members.length }} {{ g.members.length === 1 ? 'classmate' : 'classmates' }}</span>
+            <span class="badge badge--sun">{{ g.members.length }} {{ g.members.length === 1 ? 'compañero' : 'compañeros' }}</span>
           </header>
 
           @if (g.members.length === 0) {
-            <p class="group__none">Nobody else is taking this one yet.</p>
+            <p class="group__none">Nadie más toma este curso todavía.</p>
           } @else {
             <ul class="people">
               @for (m of g.members; track m.studentId) {
@@ -57,7 +57,7 @@
                   <span
                     class="badge badge--accent person__shared"
                     [title]="m.sharedCourses.join(', ')"
-                  >{{ m.sharedCount }} shared</span>
+                  >{{ m.sharedCount }} {{ m.sharedCount === 1 ? 'curso' : 'cursos' }} en común</span>
                 </li>
               }
             </ul>

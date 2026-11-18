@@ -66,7 +66,7 @@ an `IN_FLIGHT` spec becomes `CURRENT`).
 - no new rejections pointing at the freshly synced specs.
 
 Then **prove the graph remembers**: re-run the existence query that the proposal started
-with (`q query "<the feature>"`). It must now come back as shipped — a `CURRENT` spec, the
+with (`q query "<the feature>"`, in Spanish like the first time). It must now come back as shipped — a `CURRENT` spec, the
 archived change, and the services/events it added — where before the change it found nothing.
 
 Report what changed in the graph (nodes/edges written, tombstoned counts) as part of the

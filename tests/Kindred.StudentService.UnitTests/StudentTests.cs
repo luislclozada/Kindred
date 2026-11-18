@@ -8,7 +8,7 @@ public class StudentTests
     private static readonly DateTimeOffset Now = new(2026, 11, 19, 9, 0, 0, TimeSpan.Zero);
 
     private static Student NewStudent() =>
-        Student.Register("Amira Haddad", "amira@kindred.example", "Computer Science", Now).Value;
+        Student.Register("Valeria Hernández", "valeria@kindred.example", "Ciencias de la Computación", Now).Value;
 
     private static CourseCode Code(string value) => CourseCode.From(value);
 
@@ -17,18 +17,18 @@ public class StudentTests
     [Fact]
     public void Registering_normalizes_the_email_and_trims_the_name()
     {
-        var student = Student.Register("  Amira Haddad ", " Amira@Kindred.Example ", "Computer Science", Now).Value;
+        var student = Student.Register("  Valeria Hernández ", " Valeria@Kindred.Example ", "Ciencias de la Computación", Now).Value;
 
-        Assert.Equal("Amira Haddad", student.DisplayName);
-        Assert.Equal("amira@kindred.example", student.Email);
+        Assert.Equal("Valeria Hernández", student.DisplayName);
+        Assert.Equal("valeria@kindred.example", student.Email);
         Assert.Empty(student.Enrollments);
     }
 
     [Theory]
-    [InlineData("", "amira@kindred.example", "Computer Science", "student.display_name_required")]
-    [InlineData("Amira", "not-an-email", "Computer Science", "student.invalid_email")]
-    [InlineData("Amira", "amira@nowhere", "Computer Science", "student.invalid_email")]
-    [InlineData("Amira", "amira@kindred.example", " ", "student.program_required")]
+    [InlineData("", "valeria@kindred.example", "Ciencias de la Computación", "student.display_name_required")]
+    [InlineData("Valeria", "not-an-email", "Ciencias de la Computación", "student.invalid_email")]
+    [InlineData("Valeria", "valeria@nowhere", "Ciencias de la Computación", "student.invalid_email")]
+    [InlineData("Valeria", "valeria@kindred.example", " ", "student.program_required")]
     public void Registering_rejects_incomplete_details(string name, string email, string program, string expectedCode)
     {
         var result = Student.Register(name, email, program, Now);
@@ -51,7 +51,7 @@ public class StudentTests
         Assert.True(student.IsEnrolledIn(Code("COMP-248")));
         var raised = Assert.IsType<StudentEnrolledInCourse>(Assert.Single(student.DomainEvents));
         Assert.Equal(student.Id, raised.StudentId);
-        Assert.Equal("Amira Haddad", raised.StudentName);
+        Assert.Equal("Valeria Hernández", raised.StudentName);
         Assert.Equal(Code("COMP-248"), raised.CourseCode);
     }
 

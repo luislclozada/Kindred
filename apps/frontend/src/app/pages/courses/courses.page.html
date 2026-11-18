@@ -1,6 +1,6 @@
 <div class="container">
   <div class="page-head">
-    <h1 class="title">My courses</h1>
+    <h1 class="title">Mis cursos</h1>
 
     <div class="meter" role="status" aria-live="polite">
       <span class="meter__pips" aria-hidden="true">
@@ -8,32 +8,32 @@
           <span class="meter__pip" [class.meter__pip--on]="i < facade.enrolledTotal()"></span>
         }
       </span>
-      <span class="meter__text"><strong>{{ facade.enrolledTotal() }} / {{ facade.maxCourses }}</strong> courses</span>
+      <span class="meter__text"><strong>{{ facade.enrolledTotal() }} de {{ facade.maxCourses }}</strong> cursos</span>
     </div>
   </div>
 
   @if (facade.actionError(); as message) {
     <div class="alert notice" role="alert">
       <span>{{ message }}</span>
-      <button type="button" class="btn btn--ghost btn--sm" (click)="facade.dismissActionError()">Dismiss</button>
+      <button type="button" class="btn btn--ghost btn--sm" (click)="facade.dismissActionError()">Cerrar</button>
     </div>
   }
 
   @if (facade.error(); as message) {
     <div class="alert" role="alert">
       <span>{{ message }}</span>
-      <button type="button" class="btn btn--ghost btn--sm" (click)="facade.load()">Retry</button>
+      <button type="button" class="btn btn--ghost btn--sm" (click)="facade.load()">Reintentar</button>
     </div>
   } @else if (facade.loading()) {
-    <div class="grid-cards" aria-busy="true" aria-label="Loading courses">
+    <div class="grid-cards" aria-busy="true" aria-label="Cargando cursos">
       @for (n of skeletons; track n) {
         <div class="skeleton"></div>
       }
     </div>
   } @else if (facade.courses().length === 0) {
     <div class="empty">
-      <h2>No courses yet</h2>
-      <p>The catalog is empty. Seed the backend and refresh.</p>
+      <h2>Todavía no hay cursos</h2>
+      <p>El catálogo de cursos está vacío. Corre el seed del backend y recarga la página.</p>
     </div>
   } @else {
     <ul class="grid-cards">
@@ -43,22 +43,22 @@
           <div class="course__top">
             <span class="course__code">{{ c.code }}</span>
             @if (enrolled) {
-              <span class="badge badge--accent">Enrolled</span>
+              <span class="badge badge--accent">Inscrito</span>
             }
           </div>
           <h2 class="course__title">{{ c.title }}</h2>
           <p class="course__dept">{{ c.department }}</p>
           <div class="course__foot">
-            <span class="badge">{{ c.enrolledCount }} enrolled</span>
+            <span class="badge">{{ c.enrolledCount }} {{ c.enrolledCount === 1 ? 'inscrito' : 'inscritos' }}</span>
             <button
               type="button"
               class="btn btn--sm"
               [class.btn--ghost]="enrolled"
               [disabled]="facade.busyCode() === c.code"
-              [attr.aria-label]="(enrolled ? 'Drop ' : 'Enroll in ') + c.code"
+              [attr.aria-label]="(enrolled ? 'Dar de baja ' : 'Inscribirme en ') + c.code"
               (click)="toggle(c.code, enrolled)"
             >
-              {{ facade.busyCode() === c.code ? '...' : enrolled ? 'Drop' : 'Enroll' }}
+              {{ facade.busyCode() === c.code ? '…' : enrolled ? 'Dar de baja' : 'Inscribirme' }}
             </button>
           </div>
         </li>

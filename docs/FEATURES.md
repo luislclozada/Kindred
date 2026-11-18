@@ -1,7 +1,7 @@
 # Features
 
-Every shipped feature, newest first. Each entry links to its folder under `docs/features/`.
-The contract for a feature is its spec in `openspec/specs/` — when a doc and a spec disagree,
-the spec wins.
+Cada feature que ya salió, de la más reciente a la más antigua. Cada entrada apunta a su carpeta
+en `docs/features/`. El contrato de una feature es su spec en `openspec/specs/`: si un documento
+y una spec no coinciden, manda la spec.
 
-- [Classmate discovery](features/classmate-discovery/) (2026-11-17) — students register, add their courses, and see who else takes each one, ranked by how many courses they share.
+- [Descubrir compañeros](features/classmate-discovery/) (2026-11-17) — los estudiantes se registran, agregan sus cursos y ven quién más toma cada uno, ordenados por cuántos cursos tienen en común.

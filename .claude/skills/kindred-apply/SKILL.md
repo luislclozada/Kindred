@@ -76,6 +76,7 @@ dotnet run --project tools/Kindred.KnowledgeGraph -- q query "<topic>" --kind bl
 ```
 
 (or MCP `kg_query`; load the `kg` skill for the full command table and the synthesis contract.)
+Write the query in Spanish — the graph's text is Spanish (see "Language" in `CLAUDE.md`).
 
 - Use the **blast radius** to build the file-ownership matrix — follow event flow end to end
   (publisher → event → every consumer), and both endpoints of a `BRIDGES` edge are in scope.
@@ -161,6 +162,8 @@ the acceptance criteria copied from `specs/**`, the files from Step 2a, the team
 - **No destructive commands** — no `docker compose down -v`, no database drops, no row-deleting
   SQL, no `npm install`. Those need the user's approval, which an agent cannot obtain.
 - **Do not edit `tasks.md`.**
+- **Spanish for people, English for code.** UI text and API error messages are Mexican
+  Spanish; identifiers, comments, error codes and paths stay English (`CLAUDE.md`, "Language").
 
 ### While a wave runs
 

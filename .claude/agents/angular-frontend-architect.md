@@ -68,6 +68,10 @@ export class ClassmatesFacade {
   to do next), loaded.
 - Show the API's own error `message` (`toErrorMessage`) — the API returns
   `{ code, message }` with 400 / 404 / 409.
+- **User-facing text is Mexican Spanish ("tú")** — headings, buttons, labels, placeholders,
+  empty states, `aria-label`, `alt`, route titles. Use the glossary in `CLAUDE.md` ("Language").
+  Get 1-vs-many right, and leave room for text about a quarter longer than English.
+  Identifiers, CSS classes, routes and comments stay English.
 - Responsive from phone width up. Accessible: semantic HTML, real buttons and links, labels,
   visible focus, `role="alert"` on errors.
 

@@ -44,6 +44,9 @@ those two are what keep concurrent teams out of each other's files.
   the orchestrator gates each wave, and concurrent builds collide.
 - No destructive commands: no `docker compose down -v`, no database drops, no row-deleting SQL,
   no `npm install`. They need the user's approval, which you cannot obtain.
+- Spanish for people, English for code: UI text and API error messages are Mexican Spanish
+  ("tú", glossary in CLAUDE.md "Language"); identifiers, comments, error codes, paths and log
+  messages stay English.
 
 ### Report back
 - Files created/modified (full paths)

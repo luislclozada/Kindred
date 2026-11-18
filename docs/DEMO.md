@@ -1,89 +1,106 @@
-# Demo runbook — "Your AI Has Amnesia. Let's Fix That."
+# Guion de la demo — "Your AI Has Amnesia. Let's Fix That."
 
-The exact commands, in order. Rehearse on a throwaway branch (see "Reset between rehearsals").
+Los comandos exactos, en orden. Ensaya en una rama desechable (ver "Reiniciar entre ensayos").
 
-**What has been verified, and what has not** (as of 2026-11-17):
+> **Regla de idioma.** El texto del grafo (specs, docs, la columna de capacidades) está en
+> español, así que las preguntas al grafo y a Claude van en español. El código, los comandos y
+> los identificadores se quedan en inglés.
 
-- Verified: the app end to end (every endpoint through the gateway, the event flow, the three
-  pages); steps 1 and 3 exactly as written; and the graph side of steps 4–6 with a stand-in
-  change — UNBOUND before spine registration, the `IN_FLIGHT` spec and active change visible
-  while uncommitted, `openspec archive`, the STALE advisory, `ingest resync`, the
-  `IN_FLIGHT` → `CURRENT` flip, and the `kg` MCP server.
-- **Not yet run:** the three `/kindred-*` skills themselves, driven by an agent in a fresh
-  session, building the real feature (steps 4–6 as a whole) — that is the rehearsal. Also
-  `scripts/start-dev.ps1` on its happy path: during setup another stack held the default
-  ports, so only its port pre-flight was exercised and the services were started by hand.
+**Qué está verificado y qué no** (al 2026-11-17):
 
-## 0. Before the talk (once, off stage)
+- Verificado: la app de punta a punta (cada endpoint a través del gateway, el flujo de eventos,
+  las tres páginas); los pasos 1 y 3 tal como están escritos; y el lado del grafo de los pasos
+  4–6 con un cambio de prueba: UNBOUND antes de registrar en la columna de capacidades, la spec
+  `IN_FLIGHT` y el cambio activo visibles sin commit, `openspec archive`, el aviso STALE,
+  `ingest resync`, el cambio de `IN_FLIGHT` → `CURRENT`, y el servidor MCP `kg`.
+- **Todavía no se ha corrido:** las tres skills `/kindred-*` en sí, manejadas por un agente en
+  una sesión nueva, construyendo la feature real (los pasos 4–6 completos): eso es el ensayo.
+  Tampoco `scripts/start-dev.ps1` en su camino feliz: durante la preparación otro stack tenía
+  ocupados los puertos por defecto, así que solo se probó su revisión previa de puertos y los
+  servicios se levantaron a mano.
+- **Todavía no se ha vuelto a verificar contra un grafo real en español:** las preguntas al
+  grafo y a Claude traducidas al español (pasos 2, 3, 4 y 6). La verificación de arriba se hizo
+  con el texto y las preguntas en inglés; los resultados esperados que se describen abajo pueden
+  cambiar ahora que el texto del grafo está en español. Lo único medido en español es la
+  búsqueda por similitud, fuera de Neo4j y con el mismo modelo: para las dos preguntas del
+  paso 3, la capacidad correcta queda en primer lugar (`study-group-matching` con 0.89,
+  `course-enrollment` con 0.86), pero las specs quedan más abajo que en inglés
+  (`course-rosters` en el lugar 10 de 17), así que llegan por recorrido del grafo y no como
+  resultado directo. El orden de lo que imprime `q query` puede ser distinto al de antes.
+
+## 0. Antes de la charla (una vez, fuera del escenario)
 
 ```powershell
-# Kindred needs ports 5432, 5672, 15672, 7474, 7687, 5000, 5101, 5102, 4200.
-# Stop anything else holding them (the start script refuses to run and names the culprit).
+# Kindred necesita los puertos 5432, 5672, 15672, 7474, 7687, 5000, 5101, 5102, 4200.
+# Detén lo que los tenga ocupados (el script de arranque se niega a correr y dice quién es).
 
 cd C:\Projects\KINDRED
-dotnet build Kindred.slnx                 # also builds the exe the kg MCP server runs
-npm install --prefix apps/frontend        # only if node_modules is missing
+dotnet build Kindred.slnx                 # también compila el exe que corre el servidor MCP kg
+npm install --prefix apps/frontend        # solo si falta node_modules
 
-# Clean slate: empty databases, empty graph.
+# Desde cero: bases de datos vacías, grafo vacío.
 ./scripts/stop-dev.ps1 -Wipe
-./scripts/start-dev.ps1 -Kg               # postgres, rabbitmq, neo4j, services, frontend
+./scripts/start-dev.ps1 -Kg               # postgres, rabbitmq, neo4j, servicios, frontend
 
-# A short name for the knowledge graph tool, for this terminal:
+# Un nombre corto para la herramienta del grafo de conocimiento, en esta terminal:
 Set-Alias kg (Resolve-Path tools/Kindred.KnowledgeGraph/bin/Debug/net10.0/Kindred.KnowledgeGraph.exe)
 ```
 
-Open Claude Code in `C:\Projects\KINDRED` **after** the build, so the `kg` MCP server starts
-(`/mcp` should list `kg` with `kg_query` and `kg_stats`). Do not rebuild
-`tools/Kindred.KnowledgeGraph` while a session is open — the running server locks the exe.
+Abre Claude Code en `C:\Projects\KINDRED` **después** del build, para que arranque el servidor
+MCP `kg` (`/mcp` debe listar `kg` con `kg_query` y `kg_stats`). No recompiles
+`tools/Kindred.KnowledgeGraph` mientras haya una sesión abierta: el servidor en ejecución
+bloquea el exe.
 
-Check: http://localhost:4200 shows twelve students; `git status` is clean; `git log` shows the
-v1 commit.
+Revisa: http://localhost:4200 muestra doce estudiantes; `git status` está limpio; `git log`
+muestra el commit de v1.
 
-## 1. Tour the app (2 min)
+## 1. Recorrido por la app (2 min)
 
-http://localhost:4200 → sign in as **Amira Haddad** → **My courses** (enroll in one, drop it
-again; try a 7th course to show the rule) → **Classmates** (grouped by course, shared-count
-badges).
+http://localhost:4200 → entra como **Valeria Hernández** → **Mis cursos** (inscríbete en uno y
+dalo de baja otra vez; Valeria empieza con 4 cursos, así que inscríbete en dos más para llegar a
+seis y luego intenta un séptimo para mostrar la regla) → **Compañeros** (agrupados
+por curso, con insignias de cursos en común).
 
-Optional, to show the two services really are separate:
-http://localhost:5000/api/v1/matching/courses/COMP-248/roster — matching-service's own copy,
-built only from events. RabbitMQ UI: http://localhost:15672 (`kindred` / `kindred_dev`).
+Opcional, para mostrar que los dos servicios de verdad están separados:
+http://localhost:5000/api/v1/matching/courses/COMP-248/roster — la copia propia de
+matching-service, construida solo con eventos. UI de RabbitMQ: http://localhost:15672
+(`kindred` / `kindred_dev`).
 
-## 2. "The AI has amnesia"
+## 2. "La IA tiene amnesia"
 
-A fresh Claude Code session in an empty folder (or `claude` with no project): ask
-*"Does Kindred have study group matching? What would break if I changed enrollment?"*
-It cannot know.
+Una sesión nueva de Claude Code en una carpeta vacía (o `claude` sin proyecto): pregunta
+*"¿Kindred tiene formación de grupos de estudio? ¿Qué se rompería si cambio la inscripción?"*
+No tiene forma de saberlo.
 
-## 3. Give it a memory — build the graph
+## 3. Dale memoria — construye el grafo
 
 ```powershell
-kg ingest run        # deterministic facts + conventions, no LLM   → 0 UNBOUND, 0 rejected
-kg ingest embed      # local embeddings, no API key                → full coverage per label
-kg q stats           # what is in there
+kg ingest run        # hechos deterministas + convenciones, sin LLM  → 0 UNBOUND, 0 rejected
+kg ingest embed      # embeddings locales, sin API key               → cobertura completa por label
+kg q stats           # qué hay adentro
 ```
 
-Neo4j browser, for the picture: http://localhost:7474 (`neo4j` / `kindred_kg_dev`)
+Navegador de Neo4j, para la imagen: http://localhost:7474 (`neo4j` / `kindred_kg_dev`)
 
 ```cypher
 MATCH (n:KgNode)-[r]->(m:KgNode) RETURN n, r, m
 ```
 
-Now ask it things:
+Ahora pregúntale cosas:
 
 ```powershell
-kg q query "does group matching exist?" --kind existence
+kg q query "¿existe la formación de grupos de estudio?" --kind existence
 ```
 
-→ `capability:study-group-matching` (declared in the spine: "course rosters today; forming
-study groups … next") and `spec:course-rosters`. No group-matching spec, feature or change.
-**Cited answer: not yet.**
+→ `capability:study-group-matching` (declarada en la columna de capacidades: "Hoy, las listas
+de cada curso; después, formar grupos de estudio …") y `spec:course-rosters`. No hay spec,
+feature ni cambio de formación de grupos. **Respuesta con citas: todavía no.**
 
 ```powershell
-kg q query "what touches student enrollment?" --kind blast
+kg q query "¿qué toca la inscripción a cursos?" --kind blast
 ```
 
-→ the line to read out:
+→ la línea para leer en voz alta:
 
 ```
 service:student-service -[PUBLISHES]-> event:StudentEnrolledInCourseIntegrationEvent   src=…/Commands/EnrollInCourse.cs@<commit>
@@ -92,107 +109,112 @@ module:Matching -[BRIDGES]-> module:Students via=student-enrolled-in-course
 service:gateway -[CALLS]-> service:student-service routes=[/api/v1/students/{**rest}, /api/v1/courses/{**rest}]
 ```
 
-Every fact names the file and commit it came from. Nobody wrote these edges by hand — they
-are read from the code.
+Cada hecho dice de qué archivo y de qué commit salió. Nadie escribió estas aristas a mano: se
+leen del código.
 
-## 4. Propose the feature
+## 4. Propón la feature
 
-In Claude Code:
+En Claude Code:
 
 ```
 /kindred-propose add-availability-and-group-matching
 
-Students declare their weekly availability (days of the week × morning / afternoon / evening).
-matching-service forms study groups: students who take the same course and share at least one
-availability slot, in groups of up to four. The frontend gets an availability editor on
-"My courses" and a new "My groups" page. Keep it as small as the rest of Kindred.
+Los estudiantes declaran su disponibilidad semanal (días de la semana × mañana / tarde / noche).
+matching-service forma grupos de estudio: estudiantes que toman el mismo curso y coinciden en al
+menos un bloque de disponibilidad, en grupos de hasta cuatro. El frontend recibe un editor de
+disponibilidad en "Mis cursos" y una página nueva, "Mis grupos". Mantenlo tan pequeño como el
+resto de Kindred.
 ```
 
-What the audience sees, in order:
+Lo que ve el público, en orden:
 
-1. **Existence gate** — the agent queries the graph *before creating anything* and reports,
-   with citations, that group matching does not exist yet.
-2. **OpenSpec change** — `openspec/changes/add-availability-and-group-matching/` with
-   proposal, design, spec deltas and tasks (one section per service + frontend).
-3. **Spine registration** — the change name is added to `study-group-matching` in
-   `knowledge-graph/capabilities.yaml`, then `ingest run`.
-4. **The graph already knows** — ask again:
+1. **Compuerta de existencia** — el agente consulta el grafo *antes de crear nada* y reporta,
+   con citas, que la formación de grupos de estudio todavía no existe.
+2. **Cambio de OpenSpec** — `openspec/changes/add-availability-and-group-matching/` con
+   propuesta, diseño, deltas de spec y tareas (una sección por servicio + frontend).
+3. **Registro en la columna de capacidades** — el nombre del cambio se agrega a
+   `study-group-matching` en `knowledge-graph/capabilities.yaml`, y luego `ingest run`.
+4. **El grafo ya lo sabe** — pregunta otra vez:
 
 ```powershell
-kg q query "does group matching exist?" --kind existence
+kg q query "¿existe la formación de grupos de estudio?" --kind existence
 ```
 
-→ `change:add-availability-and-group-matching … change=active tasks=0/N` and a spec with
-`authority=IN_FLIGHT`. Work in progress is in the memory from the first minute — a second
-agent asking the same question now would not start a duplicate.
+→ `change:add-availability-and-group-matching … change=active tasks=0/N` y una spec con
+`authority=IN_FLIGHT`. El trabajo en curso está en la memoria desde el primer minuto: un
+segundo agente que hiciera la misma pregunta ahora no empezaría un duplicado.
 
-## 5. Build it with parallel teams
+## 5. Constrúyela con equipos en paralelo
 
 ```
 /kindred-apply add-availability-and-group-matching --plan-teams-only
 ```
 
-Shows the split **without spending anything**: the blast radius from the graph, the wave
-plan, and the file-ownership matrix (one team per service + one for the frontend; shared
-kernel and gateway kept by the orchestrator). Then for real:
+Muestra la división **sin gastar nada**: el radio de impacto según el grafo, el plan de olas y
+la matriz de propiedad de archivos (un equipo por servicio + uno para el frontend; el kernel
+compartido y el gateway se los queda el orquestador). Luego, en serio:
 
 ```
 /kindred-apply add-availability-and-group-matching
 ```
 
-Wave 0 writes the integration event contract; then three agents work at the same time; then
-the wave gate: `dotnet build`, `dotnet test`, the frontend build, and the migrations.
+La ola 0 escribe el contrato del evento de integración; luego tres agentes trabajan al mismo
+tiempo; luego la compuerta de la ola: `dotnet build`, `dotnet test`, el build del frontend y las
+migraciones.
 
-**Before the wave gate runs, close the three service windows** (keep Docker running) — a
-running service locks its dlls and the build fails with file-in-use. Afterwards restart them:
+**Antes de que corra la compuerta de la ola, cierra las tres ventanas de los servicios** (deja
+Docker corriendo): un servicio en ejecución bloquea sus dlls y el build falla con "archivo en
+uso". Después vuelve a levantarlos:
 
 ```powershell
-./scripts/start-dev.ps1 -Kg      # Docker is already up, so this just rebuilds and reopens the services
+./scripts/start-dev.ps1 -Kg      # Docker ya está arriba, así que esto solo recompila y vuelve a abrir los servicios
 ```
 
-Then show the feature in the browser: set availability, open **My groups**.
+Luego muestra la feature en el navegador: define tu disponibilidad, abre **Mis grupos**.
 
-> This step takes several minutes. Talk over it (the matrix, the "one writer per file" rule,
-> why agents never commit), or cut to a rehearsal branch where it is already built.
+> Este paso tarda varios minutos. Habla mientras tanto (la matriz, la regla de "un solo
+> escritor por archivo", por qué los agentes nunca hacen commit), o salta a una rama de ensayo
+> donde ya esté construida.
 
-## 6. Ship it — the graph remembers
+## 6. Publícala — el grafo se acuerda
 
 ```
 /kindred-commit-n-archive add-availability-and-group-matching
 ```
 
-Archive (delta specs become main specs) → **you approve the commit** → `ingest resync` +
-`ingest embed`. Then the closing query — same question as step 3, different answer:
+Archivar (los deltas de spec se vuelven specs principales) → **tú apruebas el commit** →
+`ingest resync` + `ingest embed`. Luego la consulta de cierre, la misma pregunta del paso 3 con
+otra respuesta:
 
 ```powershell
-kg q query "does group matching exist?" --kind existence
+kg q query "¿existe la formación de grupos de estudio?" --kind existence
 ```
 
-→ the spec is `authority=CURRENT`, the change is `change=archived`, and the new event shows
-up in the blast radius of enrollment. Open a brand-new Claude Code session and ask it the
-question from step 2. This time it knows.
+→ la spec es `authority=CURRENT`, el cambio es `change=archived`, y el evento nuevo aparece en
+el radio de impacto de la inscripción. Abre una sesión de Claude Code completamente nueva y
+hazle la pregunta del paso 2. Esta vez sí lo sabe.
 
-## Reset between rehearsals
+## Reiniciar entre ensayos
 
-Rehearse on a branch so `main` stays at v1:
+Ensaya en una rama para que `main` se quede en v1:
 
 ```powershell
-git switch -c rehearsal            # before step 4
-# … run steps 3–6 …
+git switch -c rehearsal            # antes del paso 4
+# … corre los pasos 3–6 …
 git switch main
 git branch -D rehearsal
-git clean -fd                      # removes anything the rehearsal left untracked
-./scripts/stop-dev.ps1 -Wipe       # empty databases and an empty graph again
+git clean -fd                      # borra todo lo que el ensayo dejó sin rastrear
+./scripts/stop-dev.ps1 -Wipe       # otra vez bases de datos vacías y un grafo vacío
 ```
 
-## If something goes wrong on stage
+## Si algo sale mal en el escenario
 
-| Symptom | Fix |
+| Síntoma | Solución |
 |---|---|
-| `start-dev.ps1` says ports are taken | It names the container/process. Stop it, run again. |
-| Classmates / rosters are empty after a fresh start | student-service seeded before matching-service bound its queue. `./scripts/stop-dev.ps1 -Wipe`, start again. |
-| `kg …` prints `[knowledge-graph] STALE` | `kg ingest resync`, then `kg ingest embed`. |
-| `ingest run` lists something as UNBOUND | Add its name as an alias in `knowledge-graph/capabilities.yaml`, run again. (Worth showing once — it is the graph refusing to guess.) |
-| The agent has no `kg_query` tool | The MCP exe was not built before the session started. The CLI (`kg q query …`) does the same thing. |
-| Build fails with "file is being used by another process" | A service window or a `kg` MCP session is holding the dll. Close it, build again. |
-| Neo4j is down | Every skill says so and carries on; run the graph steps afterwards. |
+| `start-dev.ps1` dice que los puertos están ocupados | Dice qué contenedor o proceso es. Detenlo y vuelve a correrlo. |
+| Compañeros / listas de curso vacías después de arrancar desde cero | student-service cargó el seed antes de que matching-service creara su cola. `./scripts/stop-dev.ps1 -Wipe` y arranca otra vez. |
+| `kg …` imprime `[knowledge-graph] STALE` | `kg ingest resync`, luego `kg ingest embed`. |
+| `ingest run` lista algo como UNBOUND | Agrega su nombre como alias en `knowledge-graph/capabilities.yaml` y vuelve a correrlo. (Vale la pena mostrarlo una vez: es el grafo negándose a adivinar.) |
+| El agente no tiene la herramienta `kg_query` | El exe del MCP no estaba compilado cuando arrancó la sesión. La CLI (`kg q query …`) hace lo mismo. |
+| El build falla con "file is being used by another process" | Una ventana de servicio o una sesión con el MCP `kg` tiene tomada la dll. Ciérrala y vuelve a compilar. |
+| Neo4j está abajo | Cada skill lo dice y sigue adelante; corre los pasos del grafo después. |

@@ -1,36 +1,36 @@
-# Classmate discovery
+# Descubrir compañeros
 
-Kindred v1. A student picks who they are, adds their courses, and sees the people who take the
-same ones — the more courses two students share, the higher they rank for each other.
+Kindred v1. Un estudiante elige quién es, agrega sus cursos y ve a las personas que toman los
+mismos: entre más cursos en común tengan dos estudiantes, más arriba aparecen el uno para el otro.
 
-## What a student can do
+## Qué puede hacer un estudiante
 
-1. **Sign in as** an existing student, or register (display name, email, program). There is no
-   password: v1 has no authentication.
-2. **My courses** — browse the catalog, enroll and drop. At most six courses.
-3. **Classmates** — one group per course, listing who else takes it, with a badge showing how
-   many courses each classmate shares in total.
+1. **Entrar como** un estudiante que ya existe, o registrarse (nombre, correo, carrera). No hay
+   contraseña: v1 no tiene autenticación.
+2. **Mis cursos**: recorre el catálogo, inscríbete y da de baja cursos. Máximo seis cursos.
+3. **Compañeros**: un grupo por curso con quién más lo toma, y una insignia que muestra cuántos
+   cursos en común tienes en total con cada compañero.
 
-## How it works
+## Cómo funciona
 
-| Piece | Where | Does |
+| Pieza | Dónde | Qué hace |
 |---|---|---|
-| student-service | `src/Services/StudentService/` | Students, the catalog, enrollments, the classmates query |
-| matching-service | `src/Services/MatchingService/` | Keeps a roster per course, built only from enrollment events |
-| gateway | `src/Gateway/Kindred.Gateway/` | The one address the frontend calls |
-| frontend | `apps/frontend/` | Sign in as, My courses, Classmates |
+| student-service | `src/Services/StudentService/` | Estudiantes, el catálogo, las inscripciones, la consulta de compañeros |
+| matching-service | `src/Services/MatchingService/` | Mantiene una lista por curso, construida solo con eventos de inscripción |
+| gateway | `src/Gateway/Kindred.Gateway/` | La única dirección a la que llama el frontend |
+| frontend | `apps/frontend/` | Entrar como, Mis cursos, Compañeros |
 
-Enrolling or dropping changes the `Student` aggregate, is saved, and is then announced as
-`StudentEnrolledInCourseIntegrationEvent` / `StudentDroppedCourseIntegrationEvent` on RabbitMQ.
-matching-service listens and updates its rosters. The two services never call each other over
-HTTP.
+Inscribirse o dar de baja un curso cambia el agregado `Student`, se guarda y luego se anuncia como
+`StudentEnrolledInCourseIntegrationEvent` / `StudentDroppedCourseIntegrationEvent` en RabbitMQ.
+matching-service escucha y actualiza sus listas de curso. Los dos servicios nunca se llaman
+entre sí por HTTP.
 
 ## Specs
 
 `student-profiles`, `course-catalog`, `course-enrollment`, `classmate-discovery`,
-`course-rosters` and `api-gateway` under `openspec/specs/`.
+`course-rosters` y `api-gateway` en `openspec/specs/`.
 
-## Not in v1
+## Fuera de v1
 
-Forming study groups. matching-service already knows who takes what; grouping students by
-course and overlapping availability is the next change.
+Formar grupos de estudio. matching-service ya sabe quién toma qué; agrupar estudiantes por curso
+y por disponibilidad que coincida es el siguiente cambio.

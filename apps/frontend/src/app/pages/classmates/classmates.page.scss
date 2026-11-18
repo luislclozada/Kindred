@@ -50,17 +50,24 @@
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
 }
 
+// Wraps so a long "N cursos en común" badge drops below the name instead of squeezing it.
 .person {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-3) var(--space-4);
   padding: var(--space-4);
   box-shadow: var(--shadow-hard-sm);
 
   &__info {
     display: grid;
-    flex: 1;
+    flex: 1 1 9rem;
     min-width: 0;
+  }
+
+  // When wrapped, keep the badge on the right edge, where it sits on wide cards.
+  &__shared {
+    margin-left: auto;
   }
 
   // Names wrap rather than truncate: "Lucas Trembl…" is not a name.

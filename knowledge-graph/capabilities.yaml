@@ -1,44 +1,50 @@
-# The capability spine — hand-authored, and the ONLY place capability ids are minted.
+# La columna de capacidades (capability spine): escrita a mano, y el ÚNICO lugar donde se
+# crean ids de capacidad.
 #
-# Every spec, change, feature and service is bound to one capability by name:
-# exact id, then exact alias, then the longest matching "prefix-*" alias.
-# A source that binds to nothing is reported as UNBOUND by `ingest run` — fix it here.
+# Cada spec, cambio, feature y servicio se liga a una capacidad por su nombre:
+# primero el id exacto, luego un alias exacto, luego el alias "prefijo-*" más largo que coincida.
+# Lo que no se liga a nada aparece como UNBOUND en `ingest run`; se arregla aquí.
 #
-# When you propose a change, add its name to the aliases of the capability it belongs to
-# (the kindred-propose skill does this), so in-flight work is in the graph from day one.
+# Al proponer un cambio, agrega su nombre a los alias de la capacidad a la que pertenece
+# (la skill kindred-propose lo hace), para que el trabajo en curso esté en el grafo desde el
+# primer día.
+#
+# Los ids, alias y módulos van en inglés (son identificadores). `name` y `description` van en
+# español: es el texto que el grafo busca, y las preguntas se le hacen en español.
 
 capabilities:
   - id: student-profiles
-    name: Student profiles
-    description: Students register with a display name, email and program.
+    name: Perfiles de estudiantes
+    description: Los estudiantes se registran con un nombre, un correo y una carrera.
     module: Students
     aliases: [student-service, student-*]
 
   - id: course-enrollment
-    name: Course catalog and enrollment
-    description: The course catalog, and students enrolling in or dropping courses.
+    name: Catálogo de cursos e inscripción
+    description: El catálogo de cursos, y los estudiantes que se inscriben en cursos o los dan de baja.
     module: Students
     aliases: [course-catalog, course-enrollment, enrollment-*]
 
   - id: classmate-discovery
-    name: Classmate discovery
-    description: See who else takes your courses, ranked by shared courses.
+    name: Descubrir compañeros
+    description: Ve quién más toma tus cursos, ordenados por cursos en común.
     module: Students
     aliases: [classmate-*]
 
   - id: study-group-matching
-    name: Study group matching
-    description: Course rosters today; forming study groups by course and availability next.
+    name: Formación de grupos de estudio
+    description: Hoy, las listas de cada curso; después, formar grupos de estudio por curso y disponibilidad.
     module: Matching
     aliases: [matching-service, course-rosters, matching-*, group-*, availability-*]
 
   - id: platform
-    name: Platform
-    description: Gateway, shared kernel, messaging and the knowledge graph tool.
+    name: Plataforma
+    description: Gateway, kernel compartido, mensajería y la herramienta del grafo de conocimiento.
     module: Platform
     aliases: [gateway, shared-kernel, knowledge-graph, api-gateway]
 
-# Declared seams between modules. Both ends of a bridge are in each other's blast radius.
+# Uniones declaradas entre módulos. Los dos extremos de un puente están en el radio de impacto
+# del otro.
 bridges:
   - from: Matching
     to: Students

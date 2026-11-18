@@ -38,7 +38,7 @@ export class ClassmatesFacade {
         course: byCode.get(courseCode) ?? { code: courseCode, title: courseCode, department: '', enrolledCount: 0 },
         members: classmates
           .filter((c) => c.sharedCourses.includes(courseCode))
-          .sort((a, b) => b.sharedCount - a.sharedCount || a.displayName.localeCompare(b.displayName)),
+          .sort((a, b) => b.sharedCount - a.sharedCount || a.displayName.localeCompare(b.displayName, 'es-MX')),
       }))
       .sort((a, b) => a.course.code.localeCompare(b.course.code));
   });

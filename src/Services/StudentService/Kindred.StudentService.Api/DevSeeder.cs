@@ -13,30 +13,30 @@ internal static class DevSeeder
 {
     private static readonly (string Code, string Title, string Department)[] Catalog =
     [
-        ("COMP-248", "Object-Oriented Programming I", "Computer Science"),
-        ("COMP-249", "Object-Oriented Programming II", "Computer Science"),
-        ("COMP-352", "Data Structures and Algorithms", "Computer Science"),
-        ("MATH-203", "Differential and Integral Calculus I", "Mathematics"),
-        ("MATH-205", "Differential and Integral Calculus II", "Mathematics"),
-        ("PHYS-204", "Mechanics", "Physics"),
-        ("SOEN-287", "Web Programming", "Software Engineering"),
-        ("ENGL-212", "English Composition", "English"),
+        ("COMP-248", "Programación Orientada a Objetos I", "Ciencias de la Computación"),
+        ("COMP-249", "Programación Orientada a Objetos II", "Ciencias de la Computación"),
+        ("COMP-352", "Estructuras de Datos y Algoritmos", "Ciencias de la Computación"),
+        ("MATH-203", "Cálculo Diferencial e Integral I", "Matemáticas"),
+        ("MATH-205", "Cálculo Diferencial e Integral II", "Matemáticas"),
+        ("PHYS-204", "Mecánica", "Física"),
+        ("SOEN-287", "Programación Web", "Ingeniería de Software"),
+        ("ENGL-212", "Inglés Técnico", "Lenguas"),
     ];
 
     private static readonly (string Name, string Email, string Program, string[] Courses)[] Students =
     [
-        ("Amira Haddad", "amira@kindred.example", "Computer Science", ["COMP-248", "MATH-203", "SOEN-287", "ENGL-212"]),
-        ("Lucas Tremblay", "lucas@kindred.example", "Software Engineering", ["COMP-248", "SOEN-287", "MATH-203"]),
-        ("Mei Chen", "mei@kindred.example", "Computer Science", ["COMP-249", "COMP-352", "MATH-205"]),
-        ("Diego Morales", "diego@kindred.example", "Software Engineering", ["COMP-248", "COMP-249", "SOEN-287", "PHYS-204"]),
-        ("Priya Nair", "priya@kindred.example", "Mathematics", ["MATH-203", "MATH-205", "PHYS-204"]),
-        ("Noah Bergeron", "noah@kindred.example", "Physics", ["PHYS-204", "MATH-203", "ENGL-212"]),
-        ("Fatou Diallo", "fatou@kindred.example", "Computer Science", ["COMP-352", "COMP-249", "MATH-205", "SOEN-287"]),
-        ("Ethan Wright", "ethan@kindred.example", "Software Engineering", ["SOEN-287", "COMP-248", "ENGL-212"]),
-        ("Sofia Rossi", "sofia@kindred.example", "Mathematics", ["MATH-205", "COMP-248", "PHYS-204"]),
-        ("Kenji Watanabe", "kenji@kindred.example", "Computer Science", ["COMP-352", "COMP-249"]),
-        ("Olivia Martin", "olivia@kindred.example", "English", ["ENGL-212", "MATH-203"]),
-        ("Samuel Okafor", "samuel@kindred.example", "Software Engineering", ["COMP-248", "COMP-249", "COMP-352", "SOEN-287", "MATH-203"]),
+        ("Valeria Hernández", "valeria@kindred.example", "Ciencias de la Computación", ["COMP-248", "MATH-203", "SOEN-287", "ENGL-212"]),
+        ("Santiago Ramírez", "santiago@kindred.example", "Ingeniería de Software", ["COMP-248", "SOEN-287", "MATH-203"]),
+        ("Ximena Torres", "ximena@kindred.example", "Ciencias de la Computación", ["COMP-249", "COMP-352", "MATH-205"]),
+        ("Diego Morales", "diego@kindred.example", "Ingeniería de Software", ["COMP-248", "COMP-249", "SOEN-287", "PHYS-204"]),
+        ("Regina Castillo", "regina@kindred.example", "Matemáticas", ["MATH-203", "MATH-205", "PHYS-204"]),
+        ("Emiliano Flores", "emiliano@kindred.example", "Física", ["PHYS-204", "MATH-203", "ENGL-212"]),
+        ("Fernanda Guzmán", "fernanda@kindred.example", "Ciencias de la Computación", ["COMP-352", "COMP-249", "MATH-205", "SOEN-287"]),
+        ("Mateo Sánchez", "mateo@kindred.example", "Ingeniería de Software", ["SOEN-287", "COMP-248", "ENGL-212"]),
+        ("Sofía Mendoza", "sofia@kindred.example", "Matemáticas", ["MATH-205", "COMP-248", "PHYS-204"]),
+        ("Leonardo Cruz", "leonardo@kindred.example", "Ciencias de la Computación", ["COMP-352", "COMP-249"]),
+        ("Camila Ortega", "camila@kindred.example", "Lenguas Modernas", ["ENGL-212", "MATH-203"]),
+        ("Sebastián Aguilar", "sebastian@kindred.example", "Ingeniería de Software", ["COMP-248", "COMP-249", "COMP-352", "SOEN-287", "MATH-203"]),
     ];
 
     public static async Task SeedAsync(IServiceProvider services)

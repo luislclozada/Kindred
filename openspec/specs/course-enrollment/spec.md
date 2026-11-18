@@ -1,59 +1,59 @@
 # course-enrollment Specification
 
 ## Purpose
-A student enrolls in courses from the catalog and can drop them again. The rules live in the
-`Student` aggregate. Every enrollment and drop is announced to the rest of the system as an
-integration event. Owned by student-service (module Students).
+Un estudiante se inscribe en cursos del catálogo de cursos y puede darlos de baja después. Las
+reglas de inscripción viven en el agregado `Student`. Cada inscripción y cada baja se anuncia al
+resto del sistema como un evento de integración. Lo administra student-service (módulo Students).
 
 ## Requirements
 
-### Requirement: Enroll in a course
-The system SHALL let a student enroll in a course that exists in the catalog and SHALL return the
-updated student.
+### Requirement: Inscribirse en un curso
+El sistema MUST permitir que un estudiante se inscriba en un curso que existe en el catálogo y
+MUST devolver el estudiante actualizado.
 
-#### Scenario: Successful enrollment
-- **WHEN** `POST /api/v1/students/{id}/enrollments` is sent with `{ "courseCode": "COMP-248" }`
-- **THEN** the response is `200` with the student, whose enrollments now include `COMP-248`
+#### Scenario: Inscripción exitosa
+- **WHEN** se envía `POST /api/v1/students/{id}/enrollments` con `{ "courseCode": "COMP-248" }`
+- **THEN** la respuesta es `200` con el estudiante, cuyas inscripciones ahora incluyen `COMP-248`
 
-#### Scenario: Unknown student or course
-- **WHEN** the student does not exist, or the course code is well-formed but not in the catalog
-- **THEN** the response is `404` with `code: student.not_found` or `code: course.not_found`
+#### Scenario: Estudiante o curso desconocido
+- **WHEN** el estudiante no existe, o el código del curso está bien formado pero no está en el catálogo
+- **THEN** la respuesta es `404` con `code: student.not_found` o `code: course.not_found`
 
-### Requirement: No duplicate enrollment
-The system SHALL refuse to enroll a student in a course they already take.
+### Requirement: Sin inscripción duplicada
+El sistema MUST rechazar la inscripción de un estudiante en un curso que ya toma.
 
-#### Scenario: Already enrolled
-- **WHEN** a student enrolls in a course they are already enrolled in
-- **THEN** the response is `409` with `code: enrollment.already_enrolled`
+#### Scenario: Ya inscrito
+- **WHEN** un estudiante se inscribe en un curso en el que ya está inscrito
+- **THEN** la respuesta es `409` con `code: enrollment.already_enrolled`
 
-### Requirement: At most six courses
-The system SHALL refuse an enrollment that would give a student more than six courses.
+### Requirement: Máximo seis cursos
+El sistema MUST rechazar una inscripción que dejaría a un estudiante con más de seis cursos.
 
-#### Scenario: Seventh course
-- **WHEN** a student with six enrollments enrolls in another course
-- **THEN** the response is `400` with `code: enrollment.course_limit_reached`
+#### Scenario: Séptimo curso
+- **WHEN** un estudiante con seis inscripciones se inscribe en otro curso
+- **THEN** la respuesta es `400` con `code: enrollment.course_limit_reached`
 
-### Requirement: Drop a course
-The system SHALL let a student drop a course they are enrolled in and SHALL return the updated
-student.
+### Requirement: Dar de baja un curso
+El sistema MUST permitir que un estudiante dé de baja un curso en el que está inscrito y MUST
+devolver el estudiante actualizado.
 
-#### Scenario: Successful drop
-- **WHEN** `DELETE /api/v1/students/{id}/enrollments/{courseCode}` is called for an enrolled course
-- **THEN** the response is `200` with the student, whose enrollments no longer include that course
+#### Scenario: Baja exitosa
+- **WHEN** se llama a `DELETE /api/v1/students/{id}/enrollments/{courseCode}` para un curso inscrito
+- **THEN** la respuesta es `200` con el estudiante, cuyas inscripciones ya no incluyen ese curso
 
-#### Scenario: Not enrolled
-- **WHEN** the student is not enrolled in that course
-- **THEN** the response is `404` with `code: enrollment.not_enrolled`
+#### Scenario: No inscrito
+- **WHEN** el estudiante no está inscrito en ese curso
+- **THEN** la respuesta es `404` con `code: enrollment.not_enrolled`
 
-### Requirement: Enrollment changes are published
-After an enrollment or a drop has been saved, student-service SHALL publish
-`StudentEnrolledInCourseIntegrationEvent` or `StudentDroppedCourseIntegrationEvent` on RabbitMQ.
-It SHALL NOT publish anything for a request that failed.
+### Requirement: Los cambios de inscripción se publican
+Después de guardar una inscripción o una baja, student-service MUST publicar
+`StudentEnrolledInCourseIntegrationEvent` o `StudentDroppedCourseIntegrationEvent` en RabbitMQ.
+MUST NOT publicar nada para una solicitud que falló.
 
-#### Scenario: Enrollment event
-- **WHEN** an enrollment succeeds
-- **THEN** a `StudentEnrolledInCourseIntegrationEvent` carrying the student id, the student's display name and the course code is published
+#### Scenario: Evento de inscripción
+- **WHEN** una inscripción tiene éxito
+- **THEN** se publica un `StudentEnrolledInCourseIntegrationEvent` con el id del estudiante, el nombre del estudiante y el código del curso
 
-#### Scenario: Drop event
-- **WHEN** a drop succeeds
-- **THEN** a `StudentDroppedCourseIntegrationEvent` carrying the student id and the course code is published
+#### Scenario: Evento de baja
+- **WHEN** una baja tiene éxito
+- **THEN** se publica un `StudentDroppedCourseIntegrationEvent` con el id del estudiante y el código del curso

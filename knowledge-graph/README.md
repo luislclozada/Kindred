@@ -1,125 +1,139 @@
-# The Kindred knowledge graph
+# El grafo de conocimiento de Kindred
 
-A provenance-stamped graph of this repo — its "second brain" — stored in Neo4j and built by
-`tools/Kindred.KnowledgeGraph`. It joins four things that otherwise never meet (OpenSpec specs,
-OpenSpec changes, docs, and the .NET source tree) through a hand-declared **capability spine**,
-and answers two kinds of question with citations:
+Un grafo de este repo con procedencia en cada hecho — su "segundo cerebro" — guardado en Neo4j y
+construido por `tools/Kindred.KnowledgeGraph`. Une cuatro cosas que de otro modo nunca se
+encuentran (las specs de OpenSpec, los cambios de OpenSpec, los docs y el código .NET) a través
+de una **columna de capacidades** (*capability spine*) declarada a mano, y responde dos tipos de
+pregunta con citas:
 
-- **Existence** — "does group matching already exist?"
-- **Blast radius** — "what touches student enrollment?"
+- **Existencia** — "¿ya existe la formación de grupos de estudio?"
+- **Radio de impacto** — "¿qué toca la inscripción a cursos?"
 
-> **Advisory context, not a correctness oracle.** Every fact carries `sourceFile@commit`.
-> Specs and tests remain the enforcement layer.
+> **Contexto de apoyo, no un oráculo de correctitud.** Cada hecho lleva `sourceFile@commit`.
+> Las specs y las pruebas siguen siendo la capa que hace cumplir las reglas.
 
-## Run it
+## Córrelo
 
 ```powershell
-# 1. Neo4j (opt-in compose profile)
+# 1. Neo4j (perfil opcional de compose)
 docker compose -f docker-compose.dev.yml --profile kg up -d neo4j
 
-# 2. Build the tool once (the MCP server runs the built exe)
+# 2. Compila la herramienta una vez (el servidor MCP corre el exe compilado)
 dotnet build tools/Kindred.KnowledgeGraph
 
-# 3. Ingest the repo — deterministic facts + convention parsing, no LLM
+# 3. Ingiere el repo: hechos deterministas + lectura de convenciones, sin LLM
 dotnet run --project tools/Kindred.KnowledgeGraph -- ingest run
 
-# 4. Embeddings for retrieval — fully local, in-process ONNX model, no key, no cost
+# 4. Embeddings para la búsqueda: totalmente locales, modelo ONNX en proceso, sin key, sin costo
 dotnet run --project tools/Kindred.KnowledgeGraph -- ingest embed
 
-# 5. Ask
-dotnet run --project tools/Kindred.KnowledgeGraph -- q query "does classmate discovery exist?"
-dotnet run --project tools/Kindred.KnowledgeGraph -- q query "what touches enrollment?" --kind blast
+# 5. Pregunta
+dotnet run --project tools/Kindred.KnowledgeGraph -- q query "¿ya existe descubrir compañeros con cursos en común?"
+dotnet run --project tools/Kindred.KnowledgeGraph -- q query "¿qué toca la inscripción?" --kind blast
 dotnet run --project tools/Kindred.KnowledgeGraph -- q detect-duplicates
 dotnet run --project tools/Kindred.KnowledgeGraph -- q stats
 ```
 
-The tool reads the committed state of the repo (`git ls-files`, `git rev-parse HEAD`), so it
-needs a git repository with at least one commit.
+Pregúntale en español: el texto del grafo (specs, docs, la columna de capacidades) está en
+español; el código, los comandos y los identificadores se quedan en inglés. El modelo de
+embeddings incluido es pequeño: encuentra mejor una descripción cuando la pregunta comparte
+palabras con ella. Una pregunta en inglés solo alcanza los identificadores en inglés que quedan
+en el texto; una en español llega a la capacidad y a la spec que describen lo que buscas.
 
-Config: `NEO4J_URI` (default `bolt://localhost:7687`), `NEO4J_USER` (`neo4j`), `NEO4J_PASSWORD`
-(`kindred_kg_dev`) — from the environment or a `.env` file. No API keys of any kind.
+La herramienta lee el estado con commit del repo (`git ls-files`, `git rev-parse HEAD`), así que
+necesita un repositorio git con al menos un commit.
 
-## What is in the graph
+Configuración: `NEO4J_URI` (por defecto `bolt://localhost:7687`), `NEO4J_USER` (`neo4j`),
+`NEO4J_PASSWORD` (`kindred_kg_dev`), desde el entorno o un archivo `.env`. Ninguna API key de
+ningún tipo.
 
-| Node | Key | Comes from | Tier |
+## Qué hay en el grafo
+
+| Nodo | Llave | De dónde sale | Nivel |
 |---|---|---|---|
-| `Service` | `service:student-service` | every `.csproj` under `src/` and `tools/` (`Kindred.StudentService{,.Api,.Data}` collapse into one) + port from `launchSettings.json` | A |
-| `DomainEvent` | `event:StudentEnrolledInCourseIntegrationEvent` | a type implementing `IIntegrationEvent` | A |
-| `Spec` | `spec:course-enrollment` | `openspec/specs/<name>/spec.md` (`authority: CURRENT`), or a delta in an active change for a spec that does not exist yet (`authority: IN_FLIGHT`) | A / B |
-| `Change` | `change:<name>` | `openspec/changes/<name>/` and `archive/<date>-<name>/`, with `tasksDone/tasksTotal` | A |
-| `Doc`, `Feature` | `doc:docs/FEATURES.md`, `feature:classmate-discovery` | `docs/**/*.md`, `docs/features/<name>/`, the `FEATURES.md` entry grammar | A / B |
-| `Capability`, `Module` | `capability:study-group-matching`, `module:Matching` | **only** `knowledge-graph/capabilities.yaml` | B |
+| `Service` | `service:student-service` | cada `.csproj` bajo `src/` y `tools/` (`Kindred.StudentService{,.Api,.Data}` se juntan en uno) + el puerto de `launchSettings.json` | A |
+| `DomainEvent` | `event:StudentEnrolledInCourseIntegrationEvent` | un tipo que implementa `IIntegrationEvent` | A |
+| `Spec` | `spec:course-enrollment` | `openspec/specs/<name>/spec.md` (`authority: CURRENT`), o un delta en un cambio activo para una spec que todavía no existe (`authority: IN_FLIGHT`) | A / B |
+| `Change` | `change:<name>` | `openspec/changes/<name>/` y `archive/<date>-<name>/`, con `tasksDone/tasksTotal` | A |
+| `Doc`, `Feature` | `doc:docs/FEATURES.md`, `feature:classmate-discovery` | `docs/**/*.md`, `docs/features/<name>/`, la gramática de entradas de `FEATURES.md` | A / B |
+| `Capability`, `Module` | `capability:study-group-matching`, `module:Matching` | **solo** `knowledge-graph/capabilities.yaml` | B |
 
-| Edge | Means | Comes from |
+| Arista | Significa | De dónde sale |
 |---|---|---|
-| `DEPENDS_ON` | service → service it references | `<ProjectReference>` |
-| `PUBLISHES` | service → event | `new XIntegrationEvent(` in a file that uses `IEventBus` |
-| `CONSUMED_BY` | event → service | a class implementing `IIntegrationEventHandler<XIntegrationEvent>` |
-| `CALLS` | gateway → service, with the route paths | `ReverseProxy.Routes` in the gateway's `appsettings.json` (cluster id = service name) |
-| `BOUND_TO` | spec / change / feature / service → capability | the spine's ids and aliases |
-| `OWNED_BY` | capability → module | the spine |
-| `BRIDGES` | module ↔ module seam | `bridges:` in the spine |
-| `INTRODUCED_BY` | spec → change (`delta: ADDED \| MODIFIED`) | `openspec/changes/<c>/specs/<s>/spec.md` |
-| `DOCUMENTED_BY`, `REFERENCES`, `SUPERSEDED_BY` | docs structure | `docs/` folders, markdown links, `FEATURES.md` |
+| `DEPENDS_ON` | servicio → servicio al que hace referencia | `<ProjectReference>` |
+| `PUBLISHES` | servicio → evento | `new XIntegrationEvent(` en un archivo que usa `IEventBus` |
+| `CONSUMED_BY` | evento → servicio | una clase que implementa `IIntegrationEventHandler<XIntegrationEvent>` |
+| `CALLS` | gateway → servicio, con las rutas | `ReverseProxy.Routes` en el `appsettings.json` del gateway (id del cluster = nombre del servicio) |
+| `BOUND_TO` | spec / cambio / feature / servicio → capacidad | los ids y alias de la columna de capacidades |
+| `OWNED_BY` | capacidad → módulo | la columna de capacidades |
+| `BRIDGES` | unión módulo ↔ módulo | `bridges:` en la columna de capacidades |
+| `INTRODUCED_BY` | spec → cambio (`delta: ADDED \| MODIFIED`) | `openspec/changes/<c>/specs/<s>/spec.md` |
+| `DOCUMENTED_BY`, `REFERENCES`, `SUPERSEDED_BY` | estructura de los docs | carpetas de `docs/`, links de markdown, `FEATURES.md` |
 
-Because publishers and consumers are read from code shape, keep the convention: construct the
-integration event inline in the handler file that uses `IEventBus`, and implement
-`IIntegrationEventHandler<T>` on the consuming side.
+Como los publicadores y los consumidores se leen de la forma del código, respeta la convención:
+construye el evento de integración inline en el archivo del handler que usa `IEventBus`, e
+implementa `IIntegrationEventHandler<T>` del lado que consume.
 
-## How it stays trustworthy
+## Cómo se mantiene confiable
 
-- **Single write path** — every node and edge is stamped `{sourceFile, commitHash,
-  extractorTier, batchId, extractedAt, extractor}`. Unstamped writes throw; `graph validate`
-  audits the live graph.
-- **Trust tier = risk route** — Tier A (repo facts) and Tier B (convention grammars) write
-  directly. Tier C (edges an agent extracted from prose, `ingest import-edges --file <json>`)
-  is held as `PROPOSED` until a human runs `review approve`.
-- **Consistency layer** — a doc link to a missing file is written as `DISPUTED:
-  target-missing`; a doc-claimed dependency with no corroborating repo fact is `DISPUTED:
-  uncorroborated-by-repo-facts`. A wrong doc cannot silently become truth.
-- **The capability spine** (`capabilities.yaml`) is the only place capability ids are minted.
-  Sources that bind to nothing are reported as UNBOUND on every run — extend aliases by hand,
-  re-ingest.
-- **Reversible batches** — `graph rollback --batch <id> [--dry-run]`. `ingest resync` is scoped
-  by `git diff` since the last ingested commit and tombstones deleted files.
-- **Zero LLM vendors** — embeddings are an in-process ONNX model
-  (`SmartComponents.LocalEmbeddings`, 384-dim). The tool retrieves and cites; the *calling
-  agent* writes the answer, following the contract in the `kg` skill.
+- **Un solo camino de escritura** — cada nodo y arista lleva el sello `{sourceFile, commitHash,
+  extractorTier, batchId, extractedAt, extractor}`. Una escritura sin sello lanza una excepción;
+  `graph validate` audita el grafo vivo.
+- **Nivel de confianza = ruta de riesgo** — el Nivel A (hechos del repo) y el Nivel B
+  (gramáticas de convención) escriben directo. El Nivel C (aristas que un agente extrajo de
+  prosa, `ingest import-edges --file <json>`) se queda como `PROPOSED` hasta que una persona
+  corre `review approve`.
+- **Capa de consistencia** — un link de un doc a un archivo que no existe se escribe como
+  `DISPUTED: target-missing`; una dependencia que afirma un doc sin un hecho del repo que la
+  respalde queda como `DISPUTED: uncorroborated-by-repo-facts`. Un doc equivocado no puede
+  volverse verdad en silencio.
+- **La columna de capacidades** (`capabilities.yaml`) es el único lugar donde se crean ids de
+  capacidad. Las fuentes que no se ligan a nada se reportan como UNBOUND en cada corrida:
+  amplía los alias a mano y vuelve a ingerir.
+- **Lotes reversibles** — `graph rollback --batch <id> [--dry-run]`. `ingest resync` se limita
+  al `git diff` desde el último commit ingerido y marca como borrados (tombstones) los archivos
+  eliminados.
+- **Cero proveedores de LLM** — los embeddings son un modelo ONNX en proceso
+  (`SmartComponents.LocalEmbeddings`, 384 dimensiones). La herramienta busca y cita; el *agente
+  que la llama* escribe la respuesta, siguiendo el contrato de la skill `kg`.
 
-`graph schema` regenerates `knowledge-graph/schema-reference.md` from the C# ontology.
+`graph schema` regenera `knowledge-graph/schema-reference.md` a partir de la ontología en C#.
 
-## The lifecycle — how the graph grows
+## El ciclo de vida — cómo crece el grafo
 
-The graph is kept true by the change lifecycle, not by a background job:
+Al grafo lo mantiene al día el ciclo de vida de los cambios, no un proceso en segundo plano:
 
-| Moment | Skill | What happens to the graph |
+| Momento | Skill | Qué le pasa al grafo |
 |---|---|---|
-| Explore an idea | `kindred-explore` | Queried for cited current state before the thinking starts |
-| Propose a change | `kindred-propose` | **Existence gate** before anything is created; then the change is registered in the spine and `ingest run` binds it — in-flight work is visible to existence queries from day one (a brand-new spec appears as `IN_FLIGHT`) |
-| Implement | `kindred-apply` | The **blast radius** decides how the work is split between parallel teams |
-| Archive + commit | `kindred-commit-n-archive` | After the commit, `ingest resync` + `ingest embed` record the new truth: the change is archived, its specs are `CURRENT` |
+| Explorar una idea | `kindred-explore` | Se consulta el estado actual, con citas, antes de empezar a pensar |
+| Proponer un cambio | `kindred-propose` | **Compuerta de existencia** antes de crear nada; luego el cambio se registra en la columna de capacidades y `ingest run` lo liga: el trabajo en curso es visible para las consultas de existencia desde el primer día (una spec completamente nueva aparece como `IN_FLIGHT`) |
+| Implementar | `kindred-apply` | El **radio de impacto** decide cómo se reparte el trabajo entre equipos en paralelo |
+| Archivar + commit | `kindred-commit-n-archive` | Después del commit, `ingest resync` + `ingest embed` registran la nueva verdad: el cambio queda archivado y sus specs son `CURRENT` |
 
-Safety net: every query compares the graph's last ingested commit with `HEAD` and prints
-`[knowledge-graph] STALE: graph is N commits behind HEAD` when they differ. The remedy is
-`ingest resync` then `ingest embed`.
+Red de seguridad: cada consulta compara el último commit ingerido del grafo con `HEAD` e
+imprime `[knowledge-graph] STALE: graph is N commits behind HEAD` cuando no coinciden. El
+remedio es `ingest resync` y luego `ingest embed`.
 
-Backstop: `openspec/config.yaml` requires proposals to cite the existence check and tasks to
-include spine registration, even when the raw `openspec-*` skills are used.
+Respaldo: `openspec/config.yaml` exige que las propuestas citen la revisión de existencia y que
+las tareas incluyan el registro en la columna de capacidades, aunque se usen directamente las
+skills `openspec-*`.
 
-## Claude Code wiring
+## Conexión con Claude Code
 
-- **Skill** `.claude/skills/kg/` — the command table and the answer-synthesis contract.
-- **MCP** — registered as `kg` in `.mcp.json` (`graph mcp`, stdio). Tools: `kg_query`,
-  `kg_stats`. Same engine and citations as the CLI.
+- **Skill** `.claude/skills/kg/`: la tabla de comandos y el contrato para armar la respuesta.
+- **MCP**: registrado como `kg` en `.mcp.json` (`graph mcp`, stdio). Herramientas: `kg_query`,
+  `kg_stats`. El mismo motor y las mismas citas que la CLI.
 
-  **`.mcp.json` launches the built exe, not `dotnet run` — do not change that.** `dotnet run`
-  rebuilds on every launch, and the build fails whenever a running server already holds the
-  dll. Consequences: build the tool once before first use, and stop every running `kg` server
-  (close the Claude Code sessions using it) before rebuilding the tool.
+  **`.mcp.json` lanza el exe compilado, no `dotnet run`; no cambies eso.** `dotnet run`
+  recompila en cada arranque, y el build falla siempre que un servidor en ejecución ya tiene
+  tomada la dll. Consecuencias: compila la herramienta una vez antes del primer uso, y detén
+  todos los servidores `kg` en ejecución (cierra las sesiones de Claude Code que los usan) antes
+  de recompilar la herramienta.
 
-## Known limits
+## Límites conocidos
 
-- The graph indexes specs, changes, docs and project-level code facts — not source-code internals.
-- Neo4j community has no property-existence constraints; the write path and `graph validate`
-  enforce provenance instead.
-- Human review of Tier C is a CLI (`review list | approve | reject`), not a UI.
+- El grafo indexa specs, cambios, docs y hechos de código a nivel de proyecto, no el interior
+  del código fuente.
+- Neo4j community no tiene restricciones de existencia de propiedades; en su lugar, el camino de
+  escritura y `graph validate` hacen cumplir la procedencia.
+- La revisión humana del Nivel C es una CLI (`review list | approve | reject`), no una UI.

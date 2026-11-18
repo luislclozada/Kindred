@@ -18,7 +18,7 @@ Reference implementations — open them before you write anything:
 
 ## 1. The five files, in this order
 
-All paths under `apps/frontend/src/app/`. Example: a "My groups" page.
+All paths under `apps/frontend/src/app/`. Example: a "Mis grupos" page.
 
 | # | File | What goes in it |
 |---|---|---|
@@ -56,24 +56,24 @@ Standalone (the default), OnPush, `inject()`, signals, `@if` / `@for` with `trac
 ```html
 <div class="container">
   <div class="page-head">
-    <h1 class="title">My groups</h1>
-    <p class="lede">One sentence saying what this page is for.</p>
+    <h1 class="title">Mis grupos</h1>
+    <p class="lede">Una frase que diga para qué sirve esta página.</p>
   </div>
 
   @if (facade.error(); as message) {
     <div class="alert" role="alert">
       <span>{{ message }}</span>
-      <button type="button" class="btn btn--ghost btn--sm" (click)="facade.load()">Retry</button>
+      <button type="button" class="btn btn--ghost btn--sm" (click)="facade.load()">Reintentar</button>
     </div>
   } @else if (facade.loading()) {
-    <div class="grid-cards" aria-busy="true" aria-label="Loading groups">
+    <div class="grid-cards" aria-busy="true" aria-label="Cargando grupos">
       @for (n of skeletons; track n) { <div class="skeleton"></div> }
     </div>
   } @else if (facade.items().length === 0) {
     <div class="empty">
-      <h2>No groups yet</h2>
-      <p>Say what to do next, and offer the way there.</p>
-      <a class="btn" routerLink="/courses">Manage courses</a>
+      <h2>Aún no tienes grupos</h2>
+      <p>Di qué hacer ahora y ofrece el camino.</p>
+      <a class="btn" routerLink="/courses">Ver mis cursos</a>
     </div>
   } @else {
     <ul class="grid-cards">
@@ -86,6 +86,12 @@ Standalone (the default), OnPush, `inject()`, signals, `@if` / `@for` with `trac
 ```
 
 Order is error → loading → empty → loaded. Never ship a page without all four.
+
+Everything a user reads or a screen reader announces is **Mexican Spanish, "tú"** — headings,
+buttons, labels, placeholders, empty states, `aria-label`, `alt`, route titles. Use the glossary
+in `CLAUDE.md` ("Language"). Handle 1 vs many ("1 curso en común" / "3 cursos en común"), and
+leave room: Spanish runs about a quarter longer than English. Identifiers, classes and routes
+stay English.
 
 ## 4. Primitives — use these, never re-implement them
 

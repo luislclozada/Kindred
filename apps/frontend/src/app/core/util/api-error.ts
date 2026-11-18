@@ -12,11 +12,11 @@ export function toErrorMessage(err: unknown): string {
     // The dev proxy answers a bodyless 500 when the gateway is down; real server errors carry a JSON body.
     const bodyless = body === null || typeof body === 'string';
     if (err.status === 0 || [502, 503, 504].includes(err.status) || (err.status === 500 && bodyless)) {
-      return "Can't reach the Kindred API. Is the backend running?";
+      return 'No se pudo conectar con la API de Kindred. ¿Está corriendo el backend?';
     }
-    return `Something went wrong on the server (HTTP ${err.status}).`;
+    return `Algo salió mal en el servidor (HTTP ${err.status}).`;
   }
-  return 'Something went wrong.';
+  return 'Algo salió mal.';
 }
 
 export function httpStatus(err: unknown): number | null {

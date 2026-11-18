@@ -6,18 +6,18 @@ import { signedInGuard } from './core/guards/signed-in.guard';
 export const routes: Routes = [
   {
     path: '',
-    title: 'Kindred - Sign in',
+    title: 'Kindred - Entrar',
     loadComponent: () => import('./pages/sign-in/sign-in.page').then((m) => m.SignInPage),
   },
   {
     path: 'courses',
-    title: 'Kindred - My courses',
+    title: 'Kindred - Mis cursos',
     canActivate: [signedInGuard],
     loadComponent: () => import('./pages/courses/courses.page').then((m) => m.CoursesPage),
   },
   {
     path: 'classmates',
-    title: 'Kindred - Classmates',
+    title: 'Kindred - Compañeros',
     canActivate: [signedInGuard],
     loadComponent: () => import('./pages/classmates/classmates.page').then((m) => m.ClassmatesPage),
   },

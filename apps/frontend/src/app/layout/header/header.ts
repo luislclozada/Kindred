@@ -23,7 +23,7 @@ export class AppHeader {
 
   /** Add a page: add an entry here and a route in app.routes.ts. */
   protected readonly nav: NavItem[] = [
-    { label: 'My courses', path: '/courses' },
-    { label: 'Classmates', path: '/classmates' },
+    { label: 'Mis cursos', path: '/courses' },
+    { label: 'Compañeros', path: '/classmates' },
   ];
 }

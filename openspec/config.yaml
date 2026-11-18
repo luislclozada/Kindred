@@ -41,6 +41,16 @@ context: |
     api service, tokens only (no raw colours in component SCSS).
   - No auth in v1: the UI has a "sign in as" picker and the API takes the student id in the route.
 
+  Language: artifacts are written in Mexican Spanish (es-MX) — proposal, design, tasks, and the
+  prose of every spec (purpose, requirement titles and text, scenario titles and steps). The
+  knowledge graph embeds this text and is queried in Spanish. What stays English: the OpenSpec
+  structure (`## Purpose`, `## Requirements`, `### Requirement:`, `#### Scenario:`,
+  `## ADDED|MODIFIED|REMOVED Requirements`, `**WHEN**` / `**THEN**` / `**AND**`), the normative
+  keyword `MUST` (uppercase, inside a Spanish sentence — "debe" fails strict validation),
+  change and spec names, and anything that is code: identifiers, paths, JSON fields, error
+  codes, event names. UI text and API error messages are Spanish. Use the glossary in
+  `CLAUDE.md` ("Language") so the same thing always has the same name.
+
   Canonical references (read before authoring specs that touch them):
   - `CLAUDE.md` — rules, commands, the knowledge-graph lifecycle.
   - `docs/FEATURES.md` — catalog of shipped features; each links to `docs/features/<name>/`.
@@ -49,6 +59,7 @@ context: |
 
 rules:
   proposal:
+    - "Write the proposal in Spanish (es-MX); see 'Language' in the context. Ask the graph in Spanish too."
     - "Run the knowledge-graph existence/duplicate check before authoring (q query '<topic>' and, when the idea resembles an existing surface, q detect-duplicates — via `dotnet run --project tools/Kindred.KnowledgeGraph` or the kg MCP tools) and cite the result in the proposal: either the overlapping surface found (with sourceFile@commit citations and why a new surface is justified) or an explicit 'no existing coverage found'. Prefer the kindred-propose skill, which runs this gate for you."
     - "State which service(s), which layer(s), and whether the frontend is touched."
     - "Call out any new or changed integration event (Kindred.SharedKernel/Messaging/Events/) and who publishes and consumes it."

@@ -85,6 +85,9 @@ return student.ToDto();
   injects `IEventBus`; the consumer implements `IIntegrationEventHandler<XIntegrationEvent>`
   and is idempotent. The knowledge graph reads who publishes and consumes what from exactly
   that shape — a different shape makes the graph wrong.
+- Error **messages** (the text in `Error.Validation/NotFound/Conflict`) are Mexican Spanish,
+  short and addressed with "tú" — the UI shows them as they are. Error **codes**, identifiers,
+  comments, log and exception messages stay English. Glossary: `CLAUDE.md` ("Language").
 - Time comes from the injected `TimeProvider`, never `DateTime.Now`.
 - EF: children are owned by their aggregate (`OwnsMany` + backing field); domain-assigned
   keys are `ValueGeneratedNever()`.

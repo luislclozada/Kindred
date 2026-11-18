@@ -33,7 +33,7 @@ dotnet ef migrations add <Name> -p src/Services/<X>Service/Kindred.<X>Service.Da
 
 # knowledge graph (see the kg skill)
 dotnet run --project tools/Kindred.KnowledgeGraph -- ingest run      # then: ingest embed
-dotnet run --project tools/Kindred.KnowledgeGraph -- q query "<question>" [--kind existence|blast]
+dotnet run --project tools/Kindred.KnowledgeGraph -- q query "<pregunta en español>" [--kind existence|blast]
 dotnet run --project tools/Kindred.KnowledgeGraph -- ingest resync   # after commits; then: ingest embed
 ```
 
@@ -65,6 +65,42 @@ Process
 15. **Commits are the user's call.** Ask before committing; never push. Agents dispatched by a skill never commit.
 16. **Keep it small.** Every extra service, page or abstraction is something to explain. Build what the spec says and stop.
 17. No auth in v1: the UI has a "sign in as" picker; the API takes the student id in the route.
+18. **Spanish for people, English for code** — see "Language" below.
+
+## Language
+
+Kindred's users and readers are Spanish speakers (Mexico). Two languages, split by who reads the text:
+
+| Spanish (es-MX, "tú") | English |
+|---|---|
+| UI text, API error **messages**, seed data | Code, identifiers, comments, file and folder names |
+| `docs/**`, `knowledge-graph/README.md` | API paths, JSON fields, error **codes**, enum values, event names |
+| Spec and change prose (purpose, requirement and scenario titles, proposal, design, tasks) | OpenSpec structure: `## Purpose`, `### Requirement:`, `#### Scenario:`, `**WHEN**` / `**THEN**`, and the keyword `MUST` |
+| `name` and `description` in the capability spine | Capability ids and aliases, spec and change names, skills, agents, this file |
+| **Questions put to the graph** | Commands and flags |
+
+**Ask the graph in Spanish.** Its prose is Spanish, and the bundled embedding model is small:
+a question matches a description best when the two share words. A Spanish question lands on
+the capability and the spec that describe the thing; an English one only catches the English
+identifiers left in the text. Build questions from the nouns below so they share words with the
+specs — `q query "¿existe la formación de grupos de estudio?"`, not `"does group matching exist?"`.
+Service and event names can be named as they are (`matching-service`).
+
+Every requirement keeps an uppercase `MUST` inside a Spanish sentence
+("El sistema MUST rechazar…") — `openspec validate --strict` rejects "debe".
+
+Use these words, always the same ones:
+
+| English | Spanish | | English | Spanish |
+|---|---|---|---|---|
+| student | estudiante | | classmates | compañeros |
+| program (degree) | carrera | | shared courses | cursos en común |
+| email | correo | | study group | grupo de estudio |
+| course catalog | catálogo de cursos | | study group matching | formación de grupos de estudio |
+| enrollment / enroll | inscripción / inscribirse | | course roster | lista del curso |
+| drop (a course) | dar de baja | | availability | disponibilidad |
+| sign in as | entrar como | | knowledge graph | grafo de conocimiento |
+| capability | capacidad | | blast radius | radio de impacto |
 
 ## The knowledge graph lifecycle
 

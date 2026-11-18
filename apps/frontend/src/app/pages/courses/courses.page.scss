@@ -70,8 +70,10 @@
     opacity: 0.8;
   }
 
+  // Wraps so "12 inscritos" + "Dar de baja" never overflow a narrow card.
   &__foot {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-3);

@@ -12,6 +12,15 @@ the answer**. Prefer the MCP tool `kg_query` when the `kg` server is connected; 
 dotnet run --project tools/Kindred.KnowledgeGraph -- q query "<question>"
 ```
 
+**Ask in Spanish.** The graph's text (specs, docs, capability descriptions) is Mexican Spanish,
+and the small embedding model matches a question to a description best when they share words —
+an English question only catches the English identifiers left in the text, and scores the
+capability that describes the thing much lower. Translate the user's question before you send
+it, using the glossary in `CLAUDE.md` ("Language") so it shares words with the specs:
+`"¿existe la formación de grupos de estudio?"`, `"¿qué toca la inscripción a cursos?"`.
+Service and event names go as they are (`matching-service`). Answer the user in the language
+they wrote in.
+
 Prereq: `docker compose -f docker-compose.dev.yml --profile kg up -d neo4j`. No API keys needed
 for anything in this skill.
 
@@ -32,8 +41,8 @@ the right time.
 |---|---|---|
 | Answer any existence/impact question | `q query "<question>"` | Returns BOTH lenses (existence + blast-radius) by default; you synthesize |
 | Only one lens (faster) | `q query "<q>" --kind existence` or `--kind blast` | |
-| "Who publishes / consumes this event?" | `q query "what touches <event or topic>" --kind blast` | `service -[PUBLISHES]-> event -[CONSUMED_BY]-> service`, read from code |
-| "What does the gateway route where?" | `q query "what does the gateway call" --kind blast` | `service:gateway -[CALLS {routes}]-> service:*`, read from the YARP config |
+| "Who publishes / consumes this event?" | `q query "¿qué toca <evento o tema>?" --kind blast` | `service -[PUBLISHES]-> event -[CONSUMED_BY]-> service`, read from code |
+| "What does the gateway route where?" | `q query "¿qué rutas reenvía el gateway?" --kind blast` | `service:gateway -[CALLS {routes}]-> service:*`, read from the YARP config |
 | "What is in flight?" | `q query "<topic>"` | Active changes are `Change` nodes with `tasksDone/tasksTotal`; a spec a change introduces is a `Spec` with `authority: IN_FLIGHT` |
 | "Am I about to duplicate a feature?" | `q detect-duplicates` | Unanchored similarity + same-capability sibling overlap + cross-directory doc twins |
 | Graph health / batches / provenance audit | `q stats [--audit-sample 25]` | |

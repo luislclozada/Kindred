@@ -1,12 +1,12 @@
 <header class="bar">
   <div class="container bar__inner">
-    <a class="brand" routerLink="/" aria-label="Kindred home">
+    <a class="brand" routerLink="/" aria-label="Kindred, inicio">
       <app-brand-image class="brand__mark" src="assets/brand/logo-mark.png" mark="K" ratio="1 / 1" />
       <span class="brand__word">Kindred</span>
     </a>
 
     @if (session.signedIn()) {
-      <nav class="nav" aria-label="Main">
+      <nav class="nav" aria-label="Principal">
         @for (item of nav; track item.path) {
           <a class="nav__link" [routerLink]="item.path" routerLinkActive="nav__link--active">{{ item.label }}</a>
         }
@@ -16,15 +16,15 @@
     <div class="actions">
       @if (session.student(); as me) {
         <span class="me" [title]="me.displayName">
-          <span class="visually-hidden">Signed in as</span>{{ me.displayName }}
+          <span class="visually-hidden">Entraste como </span> {{ me.displayName }}
         </span>
-        <button type="button" class="btn btn--ghost btn--sm" (click)="session.signOut()">Switch</button>
+        <button type="button" class="btn btn--ghost btn--sm" aria-label="Cambiar de estudiante" (click)="session.signOut()">Cambiar</button>
       }
       <button
         type="button"
         class="btn btn--ghost btn--sm theme"
         [attr.aria-pressed]="theme.isDark()"
-        aria-label="Dark mode"
+        aria-label="Tema oscuro"
         (click)="theme.toggle()"
       >
         @if (theme.isDark()) {

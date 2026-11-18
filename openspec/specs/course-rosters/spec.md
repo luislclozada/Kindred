@@ -1,38 +1,38 @@
 # course-rosters Specification
 
 ## Purpose
-matching-service keeps its own picture of who takes each course — the course roster — so that
-study group matching can be built on it without ever asking student-service. Owned by
-matching-service (module Matching).
+matching-service mantiene su propia versión de quién toma cada curso, la lista del curso, para que
+la formación de grupos de estudio se construya sobre ella sin preguntarle nunca a student-service.
+Lo administra matching-service (módulo Matching).
 
 ## Requirements
 
-### Requirement: Rosters are built from enrollment events
-matching-service SHALL maintain one roster per course from student-service's integration events
-and SHALL NOT call student-service over HTTP.
+### Requirement: La lista del curso se construye con eventos de inscripción
+matching-service MUST mantener una lista por curso a partir de los eventos de integración de
+student-service y MUST NOT llamar a student-service por HTTP.
 
-#### Scenario: Student enrolls
-- **WHEN** a `StudentEnrolledInCourseIntegrationEvent` is received
-- **THEN** the student (id and display name) is on that course's roster
+#### Scenario: El estudiante se inscribe
+- **WHEN** llega un `StudentEnrolledInCourseIntegrationEvent`
+- **THEN** el estudiante (id y nombre) está en la lista de ese curso
 
-#### Scenario: Student drops
-- **WHEN** a `StudentDroppedCourseIntegrationEvent` is received
-- **THEN** the student is no longer on that course's roster
+#### Scenario: El estudiante da de baja el curso
+- **WHEN** llega un `StudentDroppedCourseIntegrationEvent`
+- **THEN** el estudiante ya no está en la lista de ese curso
 
-### Requirement: Event handling is idempotent
-Handling the same event more than once SHALL leave the roster unchanged.
+### Requirement: El manejo de eventos es idempotente
+Procesar el mismo evento más de una vez MUST dejar la lista del curso sin cambios.
 
-#### Scenario: Redelivery
-- **WHEN** the same enrollment event is delivered twice
-- **THEN** the student appears on the roster once
+#### Scenario: Reentrega
+- **WHEN** el mismo evento de inscripción se entrega dos veces
+- **THEN** el estudiante aparece una sola vez en la lista
 
-### Requirement: Read a course roster
-The system SHALL return the roster of a course, ordered by display name.
+### Requirement: Consultar la lista del curso
+El sistema MUST devolver la lista de un curso, ordenada por nombre.
 
-#### Scenario: Roster with students
-- **WHEN** `GET /api/v1/matching/courses/{courseCode}/roster` is called
-- **THEN** the response is `200` with `courseCode` (upper case) and `students` (`studentId`, `displayName`)
+#### Scenario: Lista con estudiantes
+- **WHEN** se llama a `GET /api/v1/matching/courses/{courseCode}/roster`
+- **THEN** la respuesta es `200` con `courseCode` (en mayúsculas) y `students` (`studentId`, `displayName`)
 
-#### Scenario: Course nobody takes
-- **WHEN** no student has enrolled in that course
-- **THEN** the response is `200` with an empty `students` list
+#### Scenario: Curso que nadie toma
+- **WHEN** ningún estudiante se ha inscrito en ese curso
+- **THEN** la respuesta es `200` con una lista `students` vacía

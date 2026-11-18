@@ -1,42 +1,42 @@
 # classmate-discovery Specification
 
 ## Purpose
-A student sees who else takes their courses, so they can find people to study with. This is the
-core of Kindred v1. Owned by student-service (module Students); shown on the frontend's
-Classmates page.
+Descubrir compañeros: un estudiante ve quién más toma sus cursos, ordenados por cursos en común,
+para encontrar con quién estudiar. Es el corazón de Kindred v1. Lo administra student-service
+(módulo Students) y se muestra en la página Compañeros del frontend.
 
 ## Requirements
 
-### Requirement: List classmates
-The system SHALL return, for a student, every other student who shares at least one course with
-them, together with the courses they share.
+### Requirement: Listar compañeros
+El sistema MUST devolver, para un estudiante, a todos los demás estudiantes que comparten al menos
+un curso con él, junto con sus cursos en común.
 
-#### Scenario: Shared courses
-- **WHEN** `GET /api/v1/students/{id}/classmates` is called
-- **THEN** each item carries `studentId`, `displayName`, `program`, `sharedCourses` (course codes) and `sharedCount`
-- **AND** the student themself is never in the list
+#### Scenario: Cursos en común
+- **WHEN** se llama a `GET /api/v1/students/{id}/classmates`
+- **THEN** cada elemento trae `studentId`, `displayName`, `program`, `sharedCourses` (códigos de curso) y `sharedCount`
+- **AND** el propio estudiante nunca aparece en la lista
 
-#### Scenario: No courses yet
-- **WHEN** the student is not enrolled in any course
-- **THEN** the response is `200` with an empty list
+#### Scenario: Todavía sin cursos
+- **WHEN** el estudiante no está inscrito en ningún curso
+- **THEN** la respuesta es `200` con una lista vacía
 
-#### Scenario: Unknown student
-- **WHEN** the id does not belong to any student
-- **THEN** the response is `404` with `code: student.not_found`
+#### Scenario: Estudiante desconocido
+- **WHEN** el id no pertenece a ningún estudiante
+- **THEN** la respuesta es `404` con `code: student.not_found`
 
-### Requirement: Rank by shared courses
-The system SHALL order classmates by the number of shared courses, most first, and by display
-name when the count is equal.
+### Requirement: Ordenar por cursos en común
+El sistema MUST ordenar a los compañeros por número de cursos en común, de mayor a menor, y por
+nombre cuando el número es igual.
 
-#### Scenario: Ranking
-- **WHEN** one classmate shares three courses and another shares one
-- **THEN** the classmate sharing three courses comes first
+#### Scenario: Orden
+- **WHEN** un compañero comparte tres cursos y otro comparte uno
+- **THEN** el compañero que comparte tres cursos aparece primero
 
-### Requirement: Classmates page groups by course
-The frontend SHALL show classmates grouped under each of the student's courses, with a badge on
-each classmate showing how many courses they share in total.
+### Requirement: La página Compañeros agrupa por curso
+El frontend MUST mostrar a los compañeros agrupados bajo cada curso del estudiante, con una
+insignia en cada compañero que indica cuántos cursos en común tienen en total.
 
-#### Scenario: Grouped view
-- **WHEN** a signed-in student opens the Classmates page
-- **THEN** there is one group per enrolled course listing the classmates who take it
-- **AND** a classmate who shares several courses appears in each of those groups with the same shared count
+#### Scenario: Vista agrupada
+- **WHEN** un estudiante que entró abre la página Compañeros
+- **THEN** hay un grupo por cada curso inscrito con los compañeros que lo toman
+- **AND** un compañero que comparte varios cursos aparece en cada uno de esos grupos con el mismo número de cursos en común

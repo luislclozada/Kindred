@@ -1,34 +1,37 @@
 # api-gateway Specification
 
 ## Purpose
-The gateway is the single public entry point. The frontend talks only to it; it forwards each
-request to the service that owns the path. Routes are configuration (YARP), not code.
+El gateway es el único punto de entrada público. El frontend solo habla con él; el gateway
+reenvía cada solicitud al servicio dueño de la ruta. Las rutas son configuración (YARP), no
+código.
 
 ## Requirements
 
-### Requirement: Route by path prefix
-The gateway SHALL forward `/api/v1/students/**` and `/api/v1/courses/**` to student-service and
-`/api/v1/matching/**` to matching-service, leaving the path and the response untouched.
+### Requirement: El gateway enruta por prefijo de ruta
+El gateway MUST reenviar `/api/v1/students/**` y `/api/v1/courses/**` a student-service y
+`/api/v1/matching/**` a matching-service, sin modificar la ruta ni la respuesta.
 
-#### Scenario: Student route
-- **WHEN** `GET /api/v1/courses` is sent to the gateway
-- **THEN** student-service answers it and the gateway returns that response as is
+#### Scenario: Ruta de estudiantes
+- **WHEN** se envía `GET /api/v1/courses` al gateway
+- **THEN** student-service la responde y el gateway devuelve esa respuesta tal cual
 
-#### Scenario: Matching route
-- **WHEN** `GET /api/v1/matching/courses/COMP-248/roster` is sent to the gateway
-- **THEN** matching-service answers it
+#### Scenario: Ruta de matching
+- **WHEN** se envía `GET /api/v1/matching/courses/COMP-248/roster` al gateway
+- **THEN** matching-service la responde
 
-### Requirement: Cluster ids name the target service
-Each YARP cluster id SHALL equal the kebab-case name of the service it targets
-(`student-service`, `matching-service`), so the route table can be read as "gateway calls service".
+### Requirement: El id del cluster nombra al servicio destino
+Cada id de cluster de YARP MUST ser igual al nombre kebab-case del servicio al que apunta
+(`student-service`, `matching-service`), para que la tabla de rutas se lea como "el gateway
+llama al servicio".
 
-#### Scenario: Readable route table
-- **WHEN** the gateway configuration is read
-- **THEN** every route's `ClusterId` is the name of an existing service
+#### Scenario: Tabla de rutas legible
+- **WHEN** se lee la configuración del gateway
+- **THEN** el `ClusterId` de cada ruta es el nombre de un servicio que existe
 
-### Requirement: Allow the frontend origin
-The gateway SHALL answer CORS requests from the frontend dev origin `http://localhost:4200`.
+### Requirement: El gateway permite el origen del frontend
+El gateway MUST responder las solicitudes CORS que vienen del origen de desarrollo del frontend,
+`http://localhost:4200`.
 
 #### Scenario: Preflight
-- **WHEN** an `OPTIONS` preflight arrives with `Origin: http://localhost:4200`
-- **THEN** the response allows that origin
+- **WHEN** llega un preflight `OPTIONS` con `Origin: http://localhost:4200`
+- **THEN** la respuesta permite ese origen

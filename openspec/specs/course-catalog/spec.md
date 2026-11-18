@@ -1,37 +1,39 @@
 # course-catalog Specification
 
 ## Purpose
-The catalog is the list of courses a student can enroll in. It is read-only in v1: seeded once,
-never edited through the API. Owned by student-service (module Students).
+El catálogo de cursos es la lista de cursos en los que un estudiante puede inscribirse. En v1 es
+de solo lectura: se carga una vez con datos seed y nunca se edita desde la API. Lo administra
+student-service (módulo Students).
 
 ## Requirements
 
-### Requirement: Course codes have one format
-The system SHALL identify a course by a code of three or four letters, a hyphen and three digits
-(for example `COMP-248`), always stored and returned in upper case.
+### Requirement: El código del curso tiene un solo formato
+El sistema MUST identificar cada curso con un código de tres o cuatro letras, un guion y tres
+dígitos (por ejemplo `COMP-248`). El código MUST guardarse y devolverse siempre en mayúsculas.
 
-#### Scenario: Normalization
-- **WHEN** a course code is supplied as `comp-248` or with surrounding spaces
-- **THEN** it is treated as `COMP-248`
+#### Scenario: Normalización
+- **WHEN** un código del curso llega como `comp-248` o con espacios alrededor
+- **THEN** se trata como `COMP-248`
 
-#### Scenario: Malformed code
-- **WHEN** a course code does not match the format (for example `COMP248` or `banana`)
-- **THEN** the request is rejected with `400` and `code: course.invalid_code`
+#### Scenario: Código mal formado
+- **WHEN** un código del curso no cumple el formato (por ejemplo `COMP248` o `banana`)
+- **THEN** la solicitud se rechaza con `400` y `code: course.invalid_code`
 
-### Requirement: List the catalog
-The system SHALL list every course with its code, title, department and the number of students
-currently enrolled, ordered by course code.
+### Requirement: Listar el catálogo de cursos
+El sistema MUST listar todos los cursos con su código, título, departamento y el número de
+estudiantes inscritos en ese momento, ordenados por código del curso.
 
-#### Scenario: Catalog with counts
-- **WHEN** `GET /api/v1/courses` is called
-- **THEN** each item carries `code`, `title`, `department` and `enrolledCount`
-- **AND** `enrolledCount` reflects enrollments and drops made so far
+#### Scenario: Catálogo con conteos
+- **WHEN** se llama a `GET /api/v1/courses`
+- **THEN** cada elemento trae `code`, `title`, `department` y `enrolledCount`
+- **AND** `enrolledCount` refleja las inscripciones y las bajas hechas hasta ese momento
 
-### Requirement: The catalog is seeded
-In the Development environment the system SHALL seed the catalog (and a set of demo students)
-into an empty database at startup, and SHALL NOT expose any endpoint that edits the catalog.
+### Requirement: El catálogo de cursos se carga con datos seed
+En el ambiente Development, el sistema MUST cargar al arrancar el catálogo (y un grupo de
+estudiantes de demo) en una base de datos vacía. El sistema MUST NOT exponer ningún endpoint que
+edite el catálogo.
 
-#### Scenario: First start
-- **WHEN** student-service starts in Development against an empty database
-- **THEN** the catalog and the demo students exist afterwards
-- **AND** the demo students were enrolled through the same commands the API uses, so their enrollment events were published
+#### Scenario: Primer arranque
+- **WHEN** student-service arranca en Development con una base de datos vacía
+- **THEN** después existen el catálogo y los estudiantes de demo
+- **AND** los estudiantes de demo se inscribieron con los mismos comandos que usa la API, así que sus eventos de inscripción se publicaron

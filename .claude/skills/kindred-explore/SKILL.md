@@ -21,6 +21,10 @@ openspec CLI and must stay upgradable.
 
    (or the MCP tool `kg_query` if the `kg` server is connected — same engine.)
 
+   **Write the query in Spanish**, whatever language the user used: the graph's text is
+   Spanish, and a question in another language matches it weakly. Use the glossary in
+   `CLAUDE.md` ("Language").
+
    Synthesize what came back per the `kg` skill's quality contract: cite
    `sourceFile@commit`, never present `[DISPUTED]` as true, `[PROPOSED]` only as an
    unconfirmed candidate, specs beat docs, an `IN_FLIGHT` spec is not built yet, both
