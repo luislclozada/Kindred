@@ -192,9 +192,12 @@ public sealed class HybridRetriever(KgContext ctx, EmbeddingService embeddings)
     /// Three candidate classes: (1) unanchored similarity — Feature/Spec/Change pairs with no shared
     /// capability; (2) sibling overlap — pairs INSIDE one capability whose text is near-identical
     /// (same area, nobody connected them); (3) cross-directory Doc twins.
+    /// Thresholds are on Neo4j's scale: vector.similarity.cosine returns (1 + cosine) / 2, so 0.95
+    /// is a raw cosine of 0.90. Unrelated specs written in the same style reach 0.93 on this scale;
+    /// two texts about the same thing score 0.96 and up.
     /// </summary>
     public async Task<IReadOnlyList<DuplicateCandidate>> DetectDuplicatesAsync(
-        double anchoredThreshold = 0.90, double siblingThreshold = 0.90, double docThreshold = 0.90)
+        double anchoredThreshold = 0.95, double siblingThreshold = 0.95, double docThreshold = 0.95)
     {
         await using var session = ctx.Store.Driver.AsyncSession();
 

@@ -6,7 +6,7 @@ Los comandos exactos, en orden. Ensaya en una rama desechable (ver "Reiniciar en
 > español, así que las preguntas al grafo y a Claude van en español. El código, los comandos y
 > los identificadores se quedan en inglés.
 
-**Qué está verificado y qué no** (al 2026-11-17):
+**Qué está verificado y qué no** (al 2026-11-18):
 
 - Verificado: la app de punta a punta (cada endpoint a través del gateway, el flujo de eventos,
   las tres páginas); los pasos 1 y 3 tal como están escritos; y el lado del grafo de los pasos
@@ -18,15 +18,19 @@ Los comandos exactos, en orden. Ensaya en una rama desechable (ver "Reiniciar en
   Tampoco `scripts/start-dev.ps1` en su camino feliz: durante la preparación otro stack tenía
   ocupados los puertos por defecto, así que solo se probó su revisión previa de puertos y los
   servicios se levantaron a mano.
-- **Todavía no se ha vuelto a verificar contra un grafo real en español:** las preguntas al
-  grafo y a Claude traducidas al español (pasos 2, 3, 4 y 6). La verificación de arriba se hizo
-  con el texto y las preguntas en inglés; los resultados esperados que se describen abajo pueden
-  cambiar ahora que el texto del grafo está en español. Lo único medido en español es la
-  búsqueda por similitud, fuera de Neo4j y con el mismo modelo: para las dos preguntas del
-  paso 3, la capacidad correcta queda en primer lugar (`study-group-matching` con 0.89,
-  `course-enrollment` con 0.86), pero las specs quedan más abajo que en inglés
-  (`course-rosters` en el lugar 10 de 17), así que llegan por recorrido del grafo y no como
-  resultado directo. El orden de lo que imprime `q query` puede ser distinto al de antes.
+- Verificado en español, contra un grafo real (2026-11-18, commit `dd8d105`): el paso 3 completo.
+  `ingest run` escribe 32 nodos y 29 aristas con 0 UNBOUND y 0 rejected; `ingest embed` cubre
+  17 de 17 nodos. Las dos preguntas del paso 3 devuelven lo que se describe abajo: la capacidad
+  correcta sale en primer lugar (`study-group-matching` con 0.93, `course-enrollment` con 0.95)
+  y las cuatro líneas para leer en voz alta aparecen tal cual. `spec:course-rosters` no sale
+  como resultado directo sino por recorrido del grafo, con 0.56: está en la lista, más abajo.
+- **Todavía no se ha verificado en español:** el lado del grafo de los pasos 4–6 (la spec
+  `IN_FLIGHT`, el aviso STALE, `ingest resync`); esa verificación se hizo cuando el texto estaba
+  en inglés. Tampoco la pregunta a Claude del paso 2.
+- `q detect-duplicates` responde "no duplicate candidates above thresholds". Con el umbral
+  anterior (0.90) marcaba 9 pares de specs en español sin que ninguno fuera un duplicado; ahora
+  el umbral es 0.95. No está en este guion, pero la skill `kindred-propose` puede correrlo
+  durante el paso 4, y ahí todavía no se ha visto qué imprime con el cambio nuevo en el grafo.
 
 ## 0. Antes de la charla (una vez, fuera del escenario)
 
