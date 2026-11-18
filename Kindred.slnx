@@ -1,0 +1,26 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Gateway/">
+    <Project Path="src/Gateway/Kindred.Gateway/Kindred.Gateway.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/" />
+  <Folder Name="/src/Services/MatchingService/">
+    <Project Path="src/Services/MatchingService/Kindred.MatchingService.Api/Kindred.MatchingService.Api.csproj" />
+    <Project Path="src/Services/MatchingService/Kindred.MatchingService.Data/Kindred.MatchingService.Data.csproj" />
+    <Project Path="src/Services/MatchingService/Kindred.MatchingService/Kindred.MatchingService.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/StudentService/">
+    <Project Path="src/Services/StudentService/Kindred.StudentService.Api/Kindred.StudentService.Api.csproj" />
+    <Project Path="src/Services/StudentService/Kindred.StudentService.Data/Kindred.StudentService.Data.csproj" />
+    <Project Path="src/Services/StudentService/Kindred.StudentService/Kindred.StudentService.csproj" />
+  </Folder>
+  <Folder Name="/src/SharedKernel/">
+    <Project Path="src/SharedKernel/Kindred.SharedKernel/Kindred.SharedKernel.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Kindred.StudentService.UnitTests/Kindred.StudentService.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/Kindred.KnowledgeGraph/Kindred.KnowledgeGraph.csproj" />
+  </Folder>
+</Solution>

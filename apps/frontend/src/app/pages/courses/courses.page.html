@@ -1,0 +1,68 @@
+<div class="container">
+  <div class="page-head">
+    <h1 class="title">My courses</h1>
+
+    <div class="meter" role="status" aria-live="polite">
+      <span class="meter__pips" aria-hidden="true">
+        @for (i of pips; track i) {
+          <span class="meter__pip" [class.meter__pip--on]="i < facade.enrolledTotal()"></span>
+        }
+      </span>
+      <span class="meter__text"><strong>{{ facade.enrolledTotal() }} / {{ facade.maxCourses }}</strong> courses</span>
+    </div>
+  </div>
+
+  @if (facade.actionError(); as message) {
+    <div class="alert notice" role="alert">
+      <span>{{ message }}</span>
+      <button type="button" class="btn btn--ghost btn--sm" (click)="facade.dismissActionError()">Dismiss</button>
+    </div>
+  }
+
+  @if (facade.error(); as message) {
+    <div class="alert" role="alert">
+      <span>{{ message }}</span>
+      <button type="button" class="btn btn--ghost btn--sm" (click)="facade.load()">Retry</button>
+    </div>
+  } @else if (facade.loading()) {
+    <div class="grid-cards" aria-busy="true" aria-label="Loading courses">
+      @for (n of skeletons; track n) {
+        <div class="skeleton"></div>
+      }
+    </div>
+  } @else if (facade.courses().length === 0) {
+    <div class="empty">
+      <h2>No courses yet</h2>
+      <p>The catalog is empty. Seed the backend and refresh.</p>
+    </div>
+  } @else {
+    <ul class="grid-cards">
+      @for (c of facade.courses(); track c.code) {
+        @let enrolled = facade.enrolledCodes().has(c.code);
+        <li class="card course" [class.course--enrolled]="enrolled">
+          <div class="course__top">
+            <span class="course__code">{{ c.code }}</span>
+            @if (enrolled) {
+              <span class="badge badge--accent">Enrolled</span>
+            }
+          </div>
+          <h2 class="course__title">{{ c.title }}</h2>
+          <p class="course__dept">{{ c.department }}</p>
+          <div class="course__foot">
+            <span class="badge">{{ c.enrolledCount }} enrolled</span>
+            <button
+              type="button"
+              class="btn btn--sm"
+              [class.btn--ghost]="enrolled"
+              [disabled]="facade.busyCode() === c.code"
+              [attr.aria-label]="(enrolled ? 'Drop ' : 'Enroll in ') + c.code"
+              (click)="toggle(c.code, enrolled)"
+            >
+              {{ facade.busyCode() === c.code ? '...' : enrolled ? 'Drop' : 'Enroll' }}
+            </button>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</div>

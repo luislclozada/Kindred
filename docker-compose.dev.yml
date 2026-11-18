@@ -1,0 +1,71 @@
+# Kindred dev infrastructure. The services and the frontend run on the host (scripts/start-dev.ps1).
+#
+#   docker compose -f docker-compose.dev.yml up -d                 postgres + rabbitmq
+#   docker compose -f docker-compose.dev.yml --profile kg up -d    + neo4j (the knowledge graph)
+#   docker compose -f docker-compose.dev.yml --profile kg down -v  stop and wipe all data
+
+name: kindred
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: kindred-postgres
+    environment:
+      POSTGRES_USER: kindred
+      POSTGRES_PASSWORD: kindred_dev
+      POSTGRES_DB: kindred_students
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Runs once, on an empty data volume: creates the second database (kindred_matching).
+      - ./docker/postgres/init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kindred -d kindred_matching"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    container_name: kindred-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: kindred
+      RABBITMQ_DEFAULT_PASS: kindred_dev
+    ports:
+      - "5672:5672"    # AMQP
+      - "15672:15672"  # management UI
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_port_connectivity"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # The knowledge graph's store (tools/Kindred.KnowledgeGraph). Stock community image, no APOC:
+  # 5.26 LTS >= 5.13, so the native vector index is built in.
+  neo4j:
+    image: neo4j:5.26-community
+    container_name: kindred-knowledge-graph
+    profiles:
+      - kg
+    environment:
+      NEO4J_AUTH: neo4j/kindred_kg_dev
+      NEO4J_server_memory_heap_max__size: 1G
+      NEO4J_dbms_usage__report_enabled: "false"
+    ports:
+      - "7474:7474"  # browser UI
+      - "7687:7687"  # Bolt
+    volumes:
+      - neo4j_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:7474 > /dev/null 2>&1 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+volumes:
+  postgres_data:
+    name: kindred-postgres-data
+  neo4j_data:
+    name: kindred-knowledge-graph-data

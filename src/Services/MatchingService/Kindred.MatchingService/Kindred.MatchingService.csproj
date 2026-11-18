@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Domain + application: the CourseRoster read model, its repository interface,
+       integration event handlers, queries, DTOs. No EF Core, no ASP.NET endpoints. -->
+  <PropertyGroup>
+    <RootNamespace>Kindred.MatchingService</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\SharedKernel\Kindred.SharedKernel\Kindred.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Domain + application: aggregates, value objects, events, repository interfaces,
+       commands/queries/handlers, DTOs. No EF Core, no ASP.NET endpoints. -->
+  <PropertyGroup>
+    <RootNamespace>Kindred.StudentService</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\SharedKernel\Kindred.SharedKernel\Kindred.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!-- HTTP surface: Program.cs and the Minimal API endpoint group. -->
+  <PropertyGroup>
+    <RootNamespace>Kindred.MatchingService.Api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Kindred.MatchingService\Kindred.MatchingService.csproj" />
+    <ProjectReference Include="..\Kindred.MatchingService.Data\Kindred.MatchingService.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
+  </ItemGroup>
+
+</Project>

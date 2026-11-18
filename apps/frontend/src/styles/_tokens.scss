@@ -1,0 +1,96 @@
+// Semantic design tokens. Components read ONLY these custom properties (no raw colours).
+// Theme: light by default, dark via the OS preference, or forced with <html data-theme="dark|light">.
+
+@mixin dark-colors {
+  color-scheme: dark;
+  --color-bg: #121110;
+  --color-surface: #1c1a17;
+  --color-surface-2: #2a2723;
+  --color-text: #f4efe3;
+  --color-text-muted: #b9b3a3;
+  --color-border: #f4efe3;
+  --color-shadow: #f4efe3;
+  --color-accent: #ff6b4a;
+  --color-on-accent: #14130f;
+  --color-accent-2: #ffd84d;
+  --color-on-accent-2: #14130f;
+  --color-danger: #ff9187;
+  --color-danger-bg: #3a1714;
+  --color-success: #6fe0a0;
+  --color-focus: #ffd84d;
+  --color-tint-0: #ff6b4a;
+  --color-tint-1: #ffd84d;
+  --color-tint-2: #5ee2b0;
+  --color-tint-3: #b9a6ff;
+}
+
+:root {
+  color-scheme: light;
+
+  // Colour
+  --color-bg: #f4efe3;
+  --color-surface: #fffdf7;
+  --color-surface-2: #ebe4d1;
+  --color-text: #14130f;
+  --color-text-muted: #56524a;
+  --color-border: #14130f;
+  --color-shadow: #14130f;
+  --color-accent: #ff5c39;
+  --color-on-accent: #14130f;
+  --color-accent-2: #ffd84d;
+  --color-on-accent-2: #14130f;
+  --color-danger: #b3261e;
+  --color-danger-bg: #ffe3de;
+  --color-success: #0f6b39;
+  --color-focus: #2b44e0;
+  --color-on-tint: #14130f;
+  --color-tint-0: #ff5c39;
+  --color-tint-1: #ffd84d;
+  --color-tint-2: #5ee2b0;
+  --color-tint-3: #b9a6ff;
+
+  // Space
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 5rem;
+
+  // Shape
+  --radius-sm: 4px;
+  --radius-md: 10px;
+  --radius-pill: 999px;
+  --border-width: 3px;
+  --border: var(--border-width) solid var(--color-border);
+  --shadow-hard: 5px 5px 0 var(--color-shadow);
+  --shadow-hard-lg: 8px 8px 0 var(--color-shadow);
+  --shadow-hard-sm: 3px 3px 0 var(--color-shadow);
+
+  // Type
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.75rem;
+  --text-2xl: clamp(2rem, 4vw, 2.75rem);
+  --text-hero: clamp(2.6rem, 8vw, 5rem);
+
+  // Layout
+  --container: 72rem;
+  --gutter: clamp(1rem, 4vw, 2rem);
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    @include dark-colors;
+  }
+}
+
+:root[data-theme='dark'] {
+  @include dark-colors;
+}

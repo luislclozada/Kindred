@@ -1,0 +1,83 @@
+:host {
+  display: block;
+  padding-bottom: var(--space-8);
+}
+
+.title {
+  font-size: var(--text-hero);
+}
+
+.groups {
+  display: grid;
+  gap: var(--space-7);
+}
+
+.group {
+  display: grid;
+  gap: var(--space-4);
+
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: var(--border);
+  }
+
+  &__code {
+    padding: var(--space-1) var(--space-3);
+    border: var(--border);
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    font: 700 var(--text-sm) / 1.4 var(--font-display);
+    letter-spacing: 0.08em;
+  }
+
+  &__title {
+    flex: 1 1 12rem;
+    font-size: var(--text-xl);
+  }
+
+  &__none {
+    color: var(--color-text-muted);
+  }
+}
+
+.people {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+}
+
+.person {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-hard-sm);
+
+  &__info {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+  }
+
+  // Names wrap rather than truncate: "Lucas Trembl…" is not a name.
+  &__name {
+    font: 700 var(--text-lg) / 1.2 var(--font-display);
+    overflow-wrap: anywhere;
+  }
+
+  &__program {
+    overflow: hidden;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.empty__art {
+  width: min(100%, 18rem);
+}

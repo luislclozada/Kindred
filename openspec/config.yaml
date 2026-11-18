@@ -1,0 +1,61 @@
+schema: spec-driven
+
+context: |
+  Kindred is a study group matcher: students register, add their courses, and see who else
+  takes them. It is deliberately small — two services, a gateway and one frontend.
+
+  Stack: .NET 10 (Minimal APIs, EF Core + PostgreSQL), RabbitMQ, YARP gateway, Angular
+  (standalone, OnPush, signals). Solution at the repo root: `Kindred.slnx`.
+
+  Services (each owns its own database):
+  - student-service (5101, module Students): students, the course catalog, enrollments, classmates.
+  - matching-service (5102, module Matching): course rosters built from enrollment events.
+  - gateway (5000): YARP; the only thing the frontend talks to.
+  Frontend: `apps/frontend` (4200, proxies /api to the gateway).
+
+  Architecture: DDD aggregates + CQRS, event-driven. Services communicate over RabbitMQ
+  integration events, NEVER by calling each other over HTTP.
+
+  Layering (strict): Api -> Application -> Domain <- Data. Per service:
+  - `Kindred.<X>Service`       domain + application (aggregates, value objects, domain events,
+                               repository interfaces, commands/queries/handlers, DTOs)
+  - `Kindred.<X>Service.Data`  DbContext, EF configurations, repositories, migrations
+  - `Kindred.<X>Service.Api`   Program.cs, Minimal API endpoint groups
+
+  Hard rules for any proposal:
+  - Mediator is the in-house `Kindred.SharedKernel.Mediator` — never MediatR.
+  - Business logic lives in aggregates; handlers orchestrate. Expected failures are `Result` /
+    `Error` values, not exceptions.
+  - Never expose a domain entity through the API — always map to a DTO.
+  - Never write around an aggregate (`DbSet.Update()`, raw SQL writes).
+  - Success responses return raw DTOs. Errors return `ApiError { code, message }` with
+    400 / 404 / 409 mapped from `ErrorType`.
+  - Enum values in JSON are SCREAMING_SNAKE_CASE (`JsonNamingPolicy.SnakeCaseUpper`).
+  - Integration event contracts live in `Kindred.SharedKernel/Messaging/Events/`. A publisher
+    constructs the event inline (`new XIntegrationEvent(...)`) in a file that uses `IEventBus`;
+    a consumer implements `IIntegrationEventHandler<XIntegrationEvent>`. The knowledge graph
+    reads PUBLISHES / CONSUMED_BY from exactly that shape.
+  - Gateway cluster ids equal the target service's kebab name (`student-service`,
+    `matching-service`); the knowledge graph reads CALLS from the YARP config.
+  - Angular: standalone + OnPush + signals, separate .ts/.html/.scss, component -> facade ->
+    api service, tokens only (no raw colours in component SCSS).
+  - No auth in v1: the UI has a "sign in as" picker and the API takes the student id in the route.
+
+  Canonical references (read before authoring specs that touch them):
+  - `CLAUDE.md` — rules, commands, the knowledge-graph lifecycle.
+  - `docs/FEATURES.md` — catalog of shipped features; each links to `docs/features/<name>/`.
+  - `knowledge-graph/README.md` — how the graph is built, queried and kept true.
+  - `apps/frontend/README.md` — the frontend pattern and how to add a page.
+
+rules:
+  proposal:
+    - "Run the knowledge-graph existence/duplicate check before authoring (q query '<topic>' and, when the idea resembles an existing surface, q detect-duplicates — via `dotnet run --project tools/Kindred.KnowledgeGraph` or the kg MCP tools) and cite the result in the proposal: either the overlapping surface found (with sourceFile@commit citations and why a new surface is justified) or an explicit 'no existing coverage found'. Prefer the kindred-propose skill, which runs this gate for you."
+    - "State which service(s), which layer(s), and whether the frontend is touched."
+    - "Call out any new or changed integration event (Kindred.SharedKernel/Messaging/Events/) and who publishes and consumes it."
+    - "Call out any new gateway route."
+  tasks:
+    - "Include a task to register the change in the knowledge-graph capability spine: add the change name to the matching capability's aliases in knowledge-graph/capabilities.yaml (the spine file is the ONLY place capability ids are minted), run 'ingest run', and confirm the change is not UNBOUND."
+    - "One tasks.md section per vertical slice (a service, or the frontend), so sections can be built by separate teams in parallel."
+    - "Backend slice order: domain model (aggregate + value objects + domain events) -> EF Core configuration + migration -> command/query handler -> repository -> Minimal API endpoint + DTOs -> xUnit tests."
+    - "Frontend slice order: DTO model -> api service method -> facade -> page (.ts/.html/.scss) -> route + nav link."
+    - "Never include git commit as a task — commits are the user's call."

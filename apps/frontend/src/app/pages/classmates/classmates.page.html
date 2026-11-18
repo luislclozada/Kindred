@@ -1,0 +1,69 @@
+<div class="container">
+  <div class="page-head">
+    <h1 class="title">Classmates</h1>
+    <p class="lede">Everyone who shares a course with you, most in common first.</p>
+  </div>
+
+  @if (facade.error(); as message) {
+    <div class="alert" role="alert">
+      <span>{{ message }}</span>
+      <button type="button" class="btn btn--ghost btn--sm" (click)="facade.load()">Retry</button>
+    </div>
+  } @else if (facade.loading()) {
+    <div class="groups" aria-busy="true" aria-label="Loading classmates">
+      @for (n of skeletons; track n) {
+        <div class="skeleton"></div>
+      }
+    </div>
+  } @else if (!facade.hasCourses() || !facade.hasClassmates()) {
+    <div class="empty">
+      <app-brand-image
+        class="empty__art"
+        src="assets/brand/empty-classmates.png"
+        alt=""
+        ratio="4 / 3"
+      />
+      @if (!facade.hasCourses()) {
+        <h2>No courses, no classmates</h2>
+        <p>Enroll in a course and the people taking it will show up here.</p>
+        <a class="btn" routerLink="/courses">Browse courses</a>
+      } @else {
+        <h2>You are the first one here</h2>
+        <p>Nobody else shares your courses yet. Try adding another one.</p>
+        <a class="btn" routerLink="/courses">Manage courses</a>
+      }
+    </div>
+  } @else {
+    <div class="groups">
+      @for (g of facade.groups(); track g.course.code) {
+        <section class="group" [attr.aria-labelledby]="'g-' + g.course.code">
+          <header class="group__head">
+            <span class="group__code">{{ g.course.code }}</span>
+            <h2 class="group__title" [id]="'g-' + g.course.code">{{ g.course.title }}</h2>
+            <span class="badge badge--sun">{{ g.members.length }} {{ g.members.length === 1 ? 'classmate' : 'classmates' }}</span>
+          </header>
+
+          @if (g.members.length === 0) {
+            <p class="group__none">Nobody else is taking this one yet.</p>
+          } @else {
+            <ul class="people">
+              @for (m of g.members; track m.studentId) {
+                <li class="card person">
+                  <span class="avatar" [class]="'tint-' + tintOf(m.displayName)" aria-hidden="true">{{ initialOf(m.displayName) }}</span>
+                  <div class="person__info">
+                    <span class="person__name">{{ m.displayName }}</span>
+                    <span class="person__program">{{ m.program }}</span>
+                  </div>
+                  <span
+                    class="badge badge--accent person__shared"
+                    [title]="m.sharedCourses.join(', ')"
+                  >{{ m.sharedCount }} shared</span>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      }
+    </div>
+  }
+</div>

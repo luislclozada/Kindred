@@ -1,0 +1,43 @@
+<header class="bar">
+  <div class="container bar__inner">
+    <a class="brand" routerLink="/" aria-label="Kindred home">
+      <app-brand-image class="brand__mark" src="assets/brand/logo-mark.png" mark="K" ratio="1 / 1" />
+      <span class="brand__word">Kindred</span>
+    </a>
+
+    @if (session.signedIn()) {
+      <nav class="nav" aria-label="Main">
+        @for (item of nav; track item.path) {
+          <a class="nav__link" [routerLink]="item.path" routerLinkActive="nav__link--active">{{ item.label }}</a>
+        }
+      </nav>
+    }
+
+    <div class="actions">
+      @if (session.student(); as me) {
+        <span class="me" [title]="me.displayName">
+          <span class="visually-hidden">Signed in as</span>{{ me.displayName }}
+        </span>
+        <button type="button" class="btn btn--ghost btn--sm" (click)="session.signOut()">Switch</button>
+      }
+      <button
+        type="button"
+        class="btn btn--ghost btn--sm theme"
+        [attr.aria-pressed]="theme.isDark()"
+        aria-label="Dark mode"
+        (click)="theme.toggle()"
+      >
+        @if (theme.isDark()) {
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" />
+          </svg>
+        } @else {
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor">
+            <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5Z" />
+          </svg>
+        }
+      </button>
+    </div>
+  </div>
+</header>

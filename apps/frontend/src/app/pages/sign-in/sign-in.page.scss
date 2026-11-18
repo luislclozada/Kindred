@@ -1,0 +1,98 @@
+:host {
+  display: block;
+  padding-bottom: var(--space-8);
+}
+
+.hero {
+  display: grid;
+  gap: var(--space-6);
+  align-items: center;
+  padding-block: var(--space-7) var(--space-6);
+
+  &__hl {
+    display: inline;
+    padding-inline: 0.12em;
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+
+  .lede {
+    margin-top: var(--space-5);
+  }
+
+  &__art {
+    width: min(100%, 22rem);
+    justify-self: center;
+  }
+}
+
+.layout {
+  display: grid;
+  gap: var(--space-7);
+  align-items: start;
+}
+
+.picker {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.grid {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+}
+
+.student {
+  display: grid;
+  gap: var(--space-1);
+  justify-items: start;
+  height: 100%;
+  padding: var(--space-4);
+
+  .avatar {
+    margin-bottom: var(--space-2);
+  }
+
+  &__name {
+    font: 700 var(--text-lg) / 1.15 var(--font-display);
+  }
+
+  &__program {
+    margin-bottom: var(--space-2);
+    font-size: var(--text-sm);
+    opacity: 0.8;
+  }
+}
+
+.register {
+  display: grid;
+  gap: var(--space-3);
+
+  &__hint {
+    color: var(--color-text-muted);
+  }
+
+  form {
+    display: grid;
+    gap: var(--space-4);
+    margin-top: var(--space-2);
+  }
+}
+
+@media (min-width: 60rem) {
+  .hero {
+    grid-template-columns: 1.4fr 1fr;
+  }
+
+  .layout {
+    grid-template-columns: 1fr 22rem;
+  }
+
+  .register {
+    position: sticky;
+    top: 6rem;
+  }
+}

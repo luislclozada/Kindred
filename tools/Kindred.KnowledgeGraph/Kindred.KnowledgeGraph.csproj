@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Kindred.KnowledgeGraph</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include=".env" Condition="Exists('.env')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DotNetEnv" />
+    <PackageReference Include="System.CommandLine" />
+    <PackageReference Include="Neo4j.Driver" />
+    <!-- In-process ONNX embeddings (bundled model, 384-dim): no embedding vendor, no API key.
+         The tool is LLM-vendor-free: answer synthesis and Tier-C extraction are done by the
+         CALLING agent (q query / ingest import-edges); the CLI only retrieves, validates, gates. -->
+    <PackageReference Include="SmartComponents.LocalEmbeddings" />
+    <PackageReference Include="ModelContextProtocol" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="YamlDotNet" />
+  </ItemGroup>
+
+</Project>

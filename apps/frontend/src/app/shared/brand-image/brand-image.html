@@ -1,0 +1,11 @@
+@if (failed()) {
+  <div class="placeholder" [class.placeholder--mark]="!!mark()" role="img" [attr.aria-label]="alt() || null" [attr.aria-hidden]="alt() ? null : true">
+    @if (mark()) {
+      <span class="placeholder__mark">{{ mark() }}</span>
+    } @else {
+      <span class="placeholder__tag">Image slot<br /><strong>{{ fileName() }}</strong></span>
+    }
+  </div>
+} @else {
+  <img [class.img--mark]="!!mark()" [src]="src()" [alt]="alt()" (error)="onError()" />
+}

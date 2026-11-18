@@ -1,0 +1,252 @@
+// Shared building blocks used by every page: .container .btn .card .badge .avatar .field
+// .alert .skeleton .empty .eyebrow. Plain CSS classes on purpose: small enough to explain.
+
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.eyebrow {
+  display: inline-block;
+  margin-bottom: var(--space-4);
+  padding: var(--space-1) var(--space-3);
+  border: var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-2);
+  color: var(--color-on-accent-2);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.lede {
+  max-width: 34rem;
+  font-size: var(--text-lg);
+  color: var(--color-text-muted);
+}
+
+// Buttons ---------------------------------------------------------------
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-5);
+  border: var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  box-shadow: var(--shadow-hard-sm);
+  font: 700 var(--text-base) / 1 var(--font-display);
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.12s var(--ease), box-shadow 0.12s var(--ease);
+
+  &:hover:not(:disabled) {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-hard);
+  }
+
+  &:active:not(:disabled) {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 0 var(--color-shadow);
+  }
+
+  &:disabled {
+    cursor: progress;
+    opacity: 0.6;
+  }
+
+  &--ghost {
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  &--sm {
+    min-height: 2.25rem;
+    padding: var(--space-1) var(--space-4);
+    font-size: var(--text-sm);
+  }
+
+  &--block {
+    width: 100%;
+  }
+}
+
+// Cards -----------------------------------------------------------------
+.card {
+  border: var(--border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-hard);
+  padding: var(--space-5);
+
+  &--interactive {
+    display: block;
+    width: 100%;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.12s var(--ease), box-shadow 0.12s var(--ease), background-color 0.12s;
+
+    &:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: var(--shadow-hard-lg);
+      background: var(--color-accent-2);
+      color: var(--color-on-accent-2);
+    }
+
+    &:active {
+      transform: translate(4px, 4px);
+      box-shadow: 0 0 0 var(--color-shadow);
+    }
+  }
+}
+
+// Badges ----------------------------------------------------------------
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem var(--space-3);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+
+  &--accent {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+
+  &--sun {
+    background: var(--color-accent-2);
+    color: var(--color-on-accent-2);
+  }
+}
+
+// Avatar (initial on a tinted square). Pick a tint with .tint-0 ... .tint-3 -----
+.avatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border: var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--color-on-tint);
+  font: 700 var(--text-lg) / 1 var(--font-display);
+}
+
+@for $i from 0 through 3 {
+  .tint-#{$i} {
+    background: var(--color-tint-#{$i});
+  }
+}
+
+// Forms -----------------------------------------------------------------
+.field {
+  display: grid;
+  gap: var(--space-1);
+
+  label {
+    font-weight: 600;
+    font-size: var(--text-sm);
+  }
+
+  input {
+    min-height: 2.75rem;
+    padding: var(--space-2) var(--space-3);
+    border: var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font: inherit;
+
+    &[aria-invalid='true'] {
+      border-color: var(--color-danger);
+    }
+  }
+
+  &__error {
+    color: var(--color-danger);
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+}
+
+// Feedback --------------------------------------------------------------
+.alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: var(--border);
+  border-color: var(--color-danger);
+  border-radius: var(--radius-sm);
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.skeleton {
+  min-height: 9rem;
+  border: var(--border);
+  border-radius: var(--radius-md);
+  background: linear-gradient(100deg, var(--color-surface-2) 30%, var(--color-surface) 50%, var(--color-surface-2) 70%) 0 0 / 300% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -150% 0;
+  }
+}
+
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-4);
+  max-width: 28rem;
+  margin-inline: auto;
+  padding: var(--space-6) 0;
+  text-align: center;
+
+  p {
+    color: var(--color-text-muted);
+  }
+}
+
+.page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-block: var(--space-6) var(--space-5);
+}
+
+.grid-cards {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+  padding-bottom: var(--space-7);
+}

@@ -1,0 +1,47 @@
+# The capability spine — hand-authored, and the ONLY place capability ids are minted.
+#
+# Every spec, change, feature and service is bound to one capability by name:
+# exact id, then exact alias, then the longest matching "prefix-*" alias.
+# A source that binds to nothing is reported as UNBOUND by `ingest run` — fix it here.
+#
+# When you propose a change, add its name to the aliases of the capability it belongs to
+# (the kindred-propose skill does this), so in-flight work is in the graph from day one.
+
+capabilities:
+  - id: student-profiles
+    name: Student profiles
+    description: Students register with a display name, email and program.
+    module: Students
+    aliases: [student-service, student-*]
+
+  - id: course-enrollment
+    name: Course catalog and enrollment
+    description: The course catalog, and students enrolling in or dropping courses.
+    module: Students
+    aliases: [course-catalog, course-enrollment, enrollment-*]
+
+  - id: classmate-discovery
+    name: Classmate discovery
+    description: See who else takes your courses, ranked by shared courses.
+    module: Students
+    aliases: [classmate-*]
+
+  - id: study-group-matching
+    name: Study group matching
+    description: Course rosters today; forming study groups by course and availability next.
+    module: Matching
+    aliases: [matching-service, course-rosters, matching-*, group-*, availability-*]
+
+  - id: platform
+    name: Platform
+    description: Gateway, shared kernel, messaging and the knowledge graph tool.
+    module: Platform
+    aliases: [gateway, shared-kernel, knowledge-graph, api-gateway]
+
+# Declared seams between modules. Both ends of a bridge are in each other's blast radius.
+bridges:
+  - from: Matching
+    to: Students
+    via: student-enrolled-in-course
+    kind: domain-event
+    status: active
