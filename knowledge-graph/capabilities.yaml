@@ -21,9 +21,9 @@ capabilities:
 
   - id: course-enrollment
     name: Catálogo de cursos e inscripción
-    description: El catálogo de cursos, y los estudiantes que se inscriben en cursos o los dan de baja.
+    description: El catálogo de cursos con su cupo, los estudiantes que se inscriben en cursos o los dan de baja, y la lista de espera de un curso lleno.
     module: Students
-    aliases: [course-catalog, course-enrollment, enrollment-*]
+    aliases: [course-catalog, course-enrollment, enrollment-*, course-waitlist]
 
   - id: classmate-discovery
     name: Descubrir compañeros
@@ -33,9 +33,9 @@ capabilities:
 
   - id: study-group-matching
     name: Formación de grupos de estudio
-    description: Hoy, las listas de cada curso; después, formar grupos de estudio por curso y disponibilidad.
+    description: Las listas de cada curso, la disponibilidad semanal del estudiante y la formación de grupos de estudio por curso y disponibilidad en común.
     module: Matching
-    aliases: [matching-service, course-rosters, matching-*, group-*, availability-*]
+    aliases: [matching-service, course-rosters, matching-*, group-*, availability-*, add-availability-and-group-matching, study-availability, study-groups]
 
   - id: platform
     name: Plataforma
