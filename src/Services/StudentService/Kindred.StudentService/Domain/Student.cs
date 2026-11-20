@@ -31,13 +31,36 @@ public sealed class Student : AggregateRoot<Guid>
 
     public static Result<Student> Register(string? displayName, string? email, string? program, DateTimeOffset now)
     {
-        if (string.IsNullOrWhiteSpace(displayName)) return StudentErrors.DisplayNameRequired;
-        if (string.IsNullOrWhiteSpace(program)) return StudentErrors.ProgramRequired;
+        var invalidProfile = ValidateProfile(displayName, program);
+        if (invalidProfile is not null) return invalidProfile;
 
         var normalizedEmail = NormalizeEmail(email);
         if (normalizedEmail is null) return StudentErrors.InvalidEmail;
 
-        return new Student(Guid.NewGuid(), displayName.Trim(), normalizedEmail, program.Trim(), now);
+        return new Student(Guid.NewGuid(), displayName!.Trim(), normalizedEmail, program!.Trim(), now);
+    }
+
+    /// <summary>Replaces name and program. Email and enrollments are untouched; only a real rename raises an event.</summary>
+    public Result UpdateProfile(string? displayName, string? program, DateTimeOffset now)
+    {
+        var invalidProfile = ValidateProfile(displayName, program);
+        if (invalidProfile is not null) return Result.Failure(invalidProfile);
+
+        var newName = displayName!.Trim();
+        var renamed = !string.Equals(newName, DisplayName, StringComparison.Ordinal);
+
+        DisplayName = newName;
+        Program = program!.Trim();
+
+        if (renamed) Raise(new StudentRenamed(Id, newName, now));
+        return Result.Success();
+    }
+
+    private static Error? ValidateProfile(string? displayName, string? program)
+    {
+        if (string.IsNullOrWhiteSpace(displayName)) return StudentErrors.DisplayNameRequired;
+        if (string.IsNullOrWhiteSpace(program)) return StudentErrors.ProgramRequired;
+        return null;
     }
 
     public Result Enroll(CourseCode course, DateTimeOffset now)

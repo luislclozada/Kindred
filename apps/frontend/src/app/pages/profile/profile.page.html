@@ -1,0 +1,47 @@
+<div class="container">
+  <div class="page-head">
+    <h1 class="title">Mi perfil</h1>
+    <p class="lede">Cambia tu nombre o tu carrera. Tus compañeros verán los datos nuevos.</p>
+  </div>
+
+  @if (facade.student(); as me) {
+    <section class="card profile" aria-labelledby="profile-title">
+      <h2 id="profile-title" class="visually-hidden">Tus datos</h2>
+
+      <form [formGroup]="form" (ngSubmit)="save()" (input)="facade.clearStatus()" novalidate>
+        <div class="field">
+          <label for="displayName">Nombre</label>
+          <input id="displayName" type="text" formControlName="displayName" autocomplete="name"
+                 [attr.aria-invalid]="showError('displayName')" [attr.aria-describedby]="showError('displayName') ? 'displayName-error' : null" />
+          @if (showError('displayName')) {
+            <span class="field__error" id="displayName-error">Dinos cómo llamarte (máximo 80 caracteres).</span>
+          }
+        </div>
+
+        <div class="field">
+          <label for="program">Carrera</label>
+          <input id="program" type="text" formControlName="program" placeholder="p. ej. Ingeniería de Software"
+                 [attr.aria-invalid]="showError('program')" [attr.aria-describedby]="showError('program') ? 'program-error' : null" />
+          @if (showError('program')) {
+            <span class="field__error" id="program-error">¿Qué carrera estudias? (máximo 80 caracteres).</span>
+          }
+        </div>
+
+        <p class="profile__email">Tu correo es <strong>{{ me.email }}</strong> y no se puede cambiar.</p>
+
+        @if (facade.error(); as message) {
+          <div class="alert" role="alert">{{ message }}</div>
+        }
+        @if (facade.saved()) {
+          <p class="badge badge--sun profile__saved" role="status">Se guardaron tus cambios.</p>
+        }
+
+        <button type="submit" class="btn" [disabled]="facade.saving()">
+          {{ facade.saving() ? 'Guardando…' : 'Guardar cambios' }}
+        </button>
+      </form>
+    </section>
+  } @else {
+    <div class="skeleton profile__skeleton" aria-busy="true" aria-label="Cargando tu perfil"></div>
+  }
+</div>

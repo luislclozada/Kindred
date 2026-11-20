@@ -10,6 +10,11 @@ internal sealed class CourseRosterRepository(MatchingDbContext db) : ICourseRost
     public Task<CourseRoster?> GetAsync(string courseCode, CancellationToken cancellationToken) =>
         db.CourseRosters.FirstOrDefaultAsync(r => r.Id == courseCode, cancellationToken);
 
+    public async Task<IReadOnlyList<CourseRoster>> ListContainingStudentAsync(Guid studentId, CancellationToken cancellationToken) =>
+        await db.CourseRosters
+            .Where(r => r.Members.Any(m => m.StudentId == studentId))
+            .ToListAsync(cancellationToken);
+
     public void Add(CourseRoster roster) => db.CourseRosters.Add(roster);
 
     public Task SaveChangesAsync(CancellationToken cancellationToken) => db.SaveChangesAsync(cancellationToken);

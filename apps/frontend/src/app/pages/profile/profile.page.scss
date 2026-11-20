@@ -1,0 +1,32 @@
+:host {
+  display: block;
+  padding-bottom: var(--space-8);
+}
+
+.title {
+  font-size: var(--text-hero);
+}
+
+.profile {
+  display: grid;
+  max-width: 32rem;
+
+  form {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  &__email {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  &__saved {
+    justify-self: start;
+  }
+
+  &__skeleton {
+    max-width: 32rem;
+    height: 16rem;
+  }
+}

@@ -16,6 +16,7 @@ builder.Services.AddMatchingData(builder.Configuration);
 builder.Services.AddKindredMessaging(builder.Configuration);
 builder.Services.AddIntegrationEventHandler<StudentEnrolledInCourseIntegrationEvent, StudentEnrolledInCourseHandler>();
 builder.Services.AddIntegrationEventHandler<StudentDroppedCourseIntegrationEvent, StudentDroppedCourseHandler>();
+builder.Services.AddIntegrationEventHandler<StudentRenamedIntegrationEvent, StudentRenamedHandler>();
 
 var app = builder.Build();
 

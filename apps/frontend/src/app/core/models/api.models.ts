@@ -33,6 +33,11 @@ export interface RegisterStudentRequest {
   program: string;
 }
 
+export interface UpdateProfileRequest {
+  displayName: string;
+  program: string;
+}
+
 export interface Classmate {
   studentId: string;
   displayName: string;

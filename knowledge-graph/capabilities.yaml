@@ -15,9 +15,9 @@
 capabilities:
   - id: student-profiles
     name: Perfiles de estudiantes
-    description: Los estudiantes se registran con un nombre, un correo y una carrera.
+    description: Los estudiantes se registran con un nombre, un correo y una carrera, y pueden editar su nombre y su carrera.
     module: Students
-    aliases: [student-service, student-*]
+    aliases: [student-service, student-*, edit-student-profile]
 
   - id: course-enrollment
     name: Catálogo de cursos e inscripción
@@ -49,5 +49,10 @@ bridges:
   - from: Matching
     to: Students
     via: student-enrolled-in-course
+    kind: domain-event
+    status: active
+  - from: Matching
+    to: Students
+    via: student-renamed
     kind: domain-event
     status: active

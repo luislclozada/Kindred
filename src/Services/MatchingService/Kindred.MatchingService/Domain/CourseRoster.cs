@@ -28,6 +28,10 @@ public sealed class CourseRoster : AggregateRoot<string>
 
     public void Remove(Guid studentId) => _members.RemoveAll(m => m.StudentId == studentId);
 
+    /// <summary>Updates the display name of an existing member; never adds one.</summary>
+    public void RenameMember(Guid studentId, string studentName) =>
+        _members.FirstOrDefault(m => m.StudentId == studentId)?.Rename(studentName);
+
     public static string Normalize(string courseCode) => courseCode.Trim().ToUpperInvariant();
 }
 
@@ -43,11 +47,18 @@ public sealed class RosterMember
 
     public Guid StudentId { get; private set; }
     public string StudentName { get; private set; } = "";
+
+    internal void Rename(string studentName)
+    {
+        if (StudentName == studentName) return;
+        StudentName = studentName;
+    }
 }
 
 public interface ICourseRosterRepository
 {
     Task<CourseRoster?> GetAsync(string courseCode, CancellationToken cancellationToken);
+    Task<IReadOnlyList<CourseRoster>> ListContainingStudentAsync(Guid studentId, CancellationToken cancellationToken);
     void Add(CourseRoster roster);
     Task SaveChangesAsync(CancellationToken cancellationToken);
 }

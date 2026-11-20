@@ -23,6 +23,21 @@ public sealed class StudentEnrolledInCourseHandler(ICourseRosterRepository roste
     }
 }
 
+public sealed class StudentRenamedHandler(ICourseRosterRepository rosters)
+    : IIntegrationEventHandler<StudentRenamedIntegrationEvent>
+{
+    public async Task Handle(StudentRenamedIntegrationEvent integrationEvent, CancellationToken cancellationToken)
+    {
+        var containing = await rosters.ListContainingStudentAsync(integrationEvent.StudentId, cancellationToken);
+        if (containing.Count == 0) return;
+
+        foreach (var roster in containing)
+            roster.RenameMember(integrationEvent.StudentId, integrationEvent.DisplayName);
+
+        await rosters.SaveChangesAsync(cancellationToken);
+    }
+}
+
 public sealed class StudentDroppedCourseHandler(ICourseRosterRepository rosters)
     : IIntegrationEventHandler<StudentDroppedCourseIntegrationEvent>
 {

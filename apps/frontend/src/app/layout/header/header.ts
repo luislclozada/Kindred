@@ -25,5 +25,6 @@ export class AppHeader {
   protected readonly nav: NavItem[] = [
     { label: 'Mis cursos', path: '/courses' },
     { label: 'Compañeros', path: '/classmates' },
+    { label: 'Mi perfil', path: '/profile' },
   ];
 }

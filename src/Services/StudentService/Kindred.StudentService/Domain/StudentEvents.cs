@@ -8,5 +8,8 @@ namespace Kindred.StudentService.Domain;
 public sealed record StudentEnrolledInCourse(
     Guid StudentId, string StudentName, CourseCode CourseCode, DateTimeOffset OccurredAt) : IDomainEvent;
 
+public sealed record StudentRenamed(
+    Guid StudentId, string DisplayName, DateTimeOffset OccurredAt) : IDomainEvent;
+
 public sealed record StudentDroppedCourse(
     Guid StudentId, CourseCode CourseCode, DateTimeOffset OccurredAt) : IDomainEvent;

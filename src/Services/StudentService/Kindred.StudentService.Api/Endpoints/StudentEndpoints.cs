@@ -7,6 +7,8 @@ namespace Kindred.StudentService.Api.Endpoints;
 
 public sealed record RegisterStudentRequest(string? DisplayName, string? Email, string? Program);
 
+public sealed record UpdateProfileRequest(string? DisplayName, string? Program);
+
 public sealed record EnrollRequest(string? CourseCode);
 
 public static class StudentEndpoints
@@ -24,6 +26,9 @@ public static class StudentEndpoints
 
         students.MapGet("/{id:guid}", async (Guid id, IMediator mediator, CancellationToken ct) =>
             (await mediator.Send(new GetStudentQuery(id), ct)).ToHttpResult());
+
+        students.MapPut("/{id:guid}", async (Guid id, UpdateProfileRequest request, IMediator mediator, CancellationToken ct) =>
+            (await mediator.Send(new UpdateStudentProfileCommand(id, request.DisplayName, request.Program), ct)).ToHttpResult());
 
         students.MapPost("/{id:guid}/enrollments", async (Guid id, EnrollRequest request, IMediator mediator, CancellationToken ct) =>
             (await mediator.Send(new EnrollInCourseCommand(id, request.CourseCode), ct)).ToHttpResult());

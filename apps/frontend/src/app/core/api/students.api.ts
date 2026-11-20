@@ -2,7 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { Classmate, RegisterStudentRequest, Student, StudentSummary } from '../models/api.models';
+import {
+  Classmate,
+  RegisterStudentRequest,
+  Student,
+  StudentSummary,
+  UpdateProfileRequest,
+} from '../models/api.models';
 import { API_BASE } from './api.config';
 
 @Injectable({ providedIn: 'root' })
@@ -20,6 +26,10 @@ export class StudentsApi {
 
   create(body: RegisterStudentRequest): Observable<Student> {
     return this.http.post<Student>(this.url, body);
+  }
+
+  updateProfile(id: string, body: UpdateProfileRequest): Observable<Student> {
+    return this.http.put<Student>(`${this.url}/${id}`, body);
   }
 
   enroll(id: string, courseCode: string): Observable<Student> {

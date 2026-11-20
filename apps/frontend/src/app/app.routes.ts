@@ -21,5 +21,11 @@ export const routes: Routes = [
     canActivate: [signedInGuard],
     loadComponent: () => import('./pages/classmates/classmates.page').then((m) => m.ClassmatesPage),
   },
+  {
+    path: 'profile',
+    title: 'Kindred - Mi perfil',
+    canActivate: [signedInGuard],
+    loadComponent: () => import('./pages/profile/profile.page').then((m) => m.ProfilePage),
+  },
   { path: '**', redirectTo: '' },
 ];
