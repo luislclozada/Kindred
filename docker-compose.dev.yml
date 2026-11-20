@@ -1,8 +1,14 @@
-# Kindred dev infrastructure. The services and the frontend run on the host (scripts/start-dev.ps1).
+# Kindred in Docker. Three layers, picked with profiles:
 #
-#   docker compose -f docker-compose.dev.yml up -d                 postgres + rabbitmq
-#   docker compose -f docker-compose.dev.yml --profile kg up -d    + neo4j (the knowledge graph)
-#   docker compose -f docker-compose.dev.yml --profile kg down -v  stop and wipe all data
+#   (no profile)   postgres + rabbitmq
+#   --profile kg   + neo4j (the knowledge graph)
+#   --profile app  + both services, the gateway and the frontend, built from this repo
+#
+#   make kindred-start   = all three:  docker compose -f docker-compose.dev.yml --profile kg --profile app up -d --build --wait
+#   make kindred-stop    = the same with `down` (WIPE=1 adds -v and deletes all data)
+#
+# To run the app on the host instead (hot reload), leave out `--profile app`:
+# scripts/start-dev.ps1 starts the infrastructure here and the services in their own windows.
 
 name: kindred
 
@@ -15,7 +21,7 @@ services:
       POSTGRES_PASSWORD: kindred_dev
       POSTGRES_DB: kindred_students
     ports:
-      - "5432:5432"
+      - "11432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       # Runs once, on an empty data volume: creates the second database (kindred_matching).
@@ -33,8 +39,8 @@ services:
       RABBITMQ_DEFAULT_USER: kindred
       RABBITMQ_DEFAULT_PASS: kindred_dev
     ports:
-      - "5672:5672"    # AMQP
-      - "15672:15672"  # management UI
+      - "11672:5672"   # AMQP
+      - "11673:15672"  # management UI
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "check_port_connectivity"]
       interval: 5s
@@ -52,9 +58,11 @@ services:
       NEO4J_AUTH: neo4j/kindred_kg_dev
       NEO4J_server_memory_heap_max__size: 1G
       NEO4J_dbms_usage__report_enabled: "false"
+      # Bolt is published on 11687, so tell the browser UI to connect there instead of 7687.
+      NEO4J_server_bolt_advertised__address: localhost:11687
     ports:
-      - "7474:7474"  # browser UI
-      - "7687:7687"  # Bolt
+      - "11474:7474"  # browser UI
+      - "11687:7687"  # Bolt
     volumes:
       - neo4j_data:/data
     healthcheck:
@@ -63,6 +71,75 @@ services:
       timeout: 5s
       retries: 20
       start_period: 20s
+
+  # ── The app (profile `app`) ──────────────────────────────────────────────────────────────────
+  # The three .NET hosts share docker/service.Dockerfile, which also defines their healthcheck.
+  # Inside the compose network they reach each other by service name on the usual ports;
+  # the 11000s are only what is published to the host.
+
+  matching-service:
+    build:
+      context: .
+      dockerfile: docker/service.Dockerfile
+      args: { APP: Kindred.MatchingService.Api }
+    container_name: kindred-matching-service
+    profiles: [app]
+    environment:
+      ConnectionStrings__Matching: Host=postgres;Port=5432;Database=kindred_matching;Username=kindred;Password=kindred_dev
+      RabbitMq__Host: rabbitmq
+      RabbitMq__Port: 5672
+    ports:
+      - "11102:8080"
+    depends_on:
+      postgres: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+
+  student-service:
+    build:
+      context: .
+      dockerfile: docker/service.Dockerfile
+      args: { APP: Kindred.StudentService.Api }
+    container_name: kindred-student-service
+    profiles: [app]
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development   # turns on the seed data (DevSeeder)
+      ConnectionStrings__Students: Host=postgres;Port=5432;Database=kindred_students;Username=kindred;Password=kindred_dev
+      RabbitMq__Host: rabbitmq
+      RabbitMq__Port: 5672
+    ports:
+      - "11101:8080"
+    depends_on:
+      postgres: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+      # Start order matters: this service publishes enrollment events while it seeds, and
+      # events published before matching-service has declared its queue are lost.
+      matching-service: { condition: service_healthy }
+
+  gateway:
+    build:
+      context: .
+      dockerfile: docker/service.Dockerfile
+      args: { APP: Kindred.Gateway }
+    container_name: kindred-gateway
+    profiles: [app]
+    environment:
+      ReverseProxy__Clusters__student-service__Destinations__local__Address: http://student-service:8080/
+      ReverseProxy__Clusters__matching-service__Destinations__local__Address: http://matching-service:8080/
+    ports:
+      - "11000:8080"
+    depends_on:
+      student-service: { condition: service_healthy }
+      matching-service: { condition: service_healthy }
+
+  frontend:
+    build:
+      context: apps/frontend
+    container_name: kindred-frontend
+    profiles: [app]
+    ports:
+      - "11200:80"
+    depends_on:
+      gateway: { condition: service_healthy }
 
 volumes:
   postgres_data:

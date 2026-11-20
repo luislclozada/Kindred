@@ -8,10 +8,10 @@ context: |
   (standalone, OnPush, signals). Solution at the repo root: `Kindred.slnx`.
 
   Services (each owns its own database):
-  - student-service (5101, module Students): students, the course catalog, enrollments, classmates.
-  - matching-service (5102, module Matching): course rosters built from enrollment events.
-  - gateway (5000): YARP; the only thing the frontend talks to.
-  Frontend: `apps/frontend` (4200, proxies /api to the gateway).
+  - student-service (11101, module Students): students, the course catalog, enrollments, classmates.
+  - matching-service (11102, module Matching): course rosters built from enrollment events.
+  - gateway (11000): YARP; the only thing the frontend talks to.
+  Frontend: `apps/frontend` (11200, proxies /api to the gateway).
 
   Architecture: DDD aggregates + CQRS, event-driven. Services communicate over RabbitMQ
   integration events, NEVER by calling each other over HTTP.

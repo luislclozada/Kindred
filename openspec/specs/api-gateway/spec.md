@@ -30,8 +30,8 @@ llama al servicio".
 
 ### Requirement: El gateway permite el origen del frontend
 El gateway MUST responder las solicitudes CORS que vienen del origen de desarrollo del frontend,
-`http://localhost:4200`.
+`http://localhost:11200`.
 
 #### Scenario: Preflight
-- **WHEN** llega un preflight `OPTIONS` con `Origin: http://localhost:4200`
+- **WHEN** llega un preflight `OPTIONS` con `Origin: http://localhost:11200`
 - **THEN** la respuesta permite ese origen

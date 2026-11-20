@@ -4,7 +4,7 @@ Angular 21 (standalone, zoneless, OnPush, signals). No UI library, no state libr
 
 ```powershell
 npm install
-npm start        # http://localhost:4200, /api proxied to http://localhost:5000 (the gateway)
+npm start        # http://localhost:11200, /api proxied to http://localhost:11000 (the gateway)
 npm run build    # production build into dist/
 ```
 

@@ -12,7 +12,7 @@ public sealed class RabbitMqOptions
     public const string Exchange = "kindred.events";
 
     public string Host { get; set; } = "localhost";
-    public int Port { get; set; } = 5672;
+    public int Port { get; set; } = 11672;
     public string User { get; set; } = "kindred";
     public string Password { get; set; } = "kindred_dev";
 

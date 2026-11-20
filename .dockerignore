@@ -1,0 +1,7 @@
+# Build context for docker/service.Dockerfile: only what `dotnet publish` needs.
+*
+!src
+!Directory.Build.props
+!Directory.Packages.props
+**/bin
+**/obj

@@ -186,8 +186,11 @@ npm run build --prefix apps/frontend                                  # when the
 dotnet ef migrations add <Name> -p src/Services/<X>Service/Kindred.<X>Service.Data -s src/Services/<X>Service/Kindred.<X>Service.Api
 ```
 
-If the dev services are running, the build fails with file-in-use on their dlls — stop the
-services first (close their windows; keep Docker up), gate, then restart them.
+The app normally runs in containers (`make kindred-start`), which hold their own build, so the
+gate does not disturb it — and the running app does not have the new code until the user runs
+`make kindred-start` again. Say so when the last wave passes. Only if the services were started
+on the host (`scripts/start-dev.ps1`) does the build fail with file-in-use on their dlls: stop
+them first (close their windows; keep Docker up), gate, then restart them.
 
 Then:
 - Reconcile agent reports against the diff — `git status` / `git diff --stat`. A file changed

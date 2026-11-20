@@ -8,7 +8,7 @@ namespace Kindred.MatchingService.Data;
 public sealed class MatchingDbContext(DbContextOptions<MatchingDbContext> options) : DbContext(options)
 {
     public const string DevConnectionString =
-        "Host=localhost;Port=5432;Database=kindred_matching;Username=kindred;Password=kindred_dev";
+        "Host=localhost;Port=11432;Database=kindred_matching;Username=kindred;Password=kindred_dev";
 
     public DbSet<CourseRoster> CourseRosters => Set<CourseRoster>();
 

@@ -7,7 +7,7 @@ namespace Kindred.StudentService.Data;
 public sealed class StudentsDbContext(DbContextOptions<StudentsDbContext> options) : DbContext(options)
 {
     public const string DevConnectionString =
-        "Host=localhost;Port=5432;Database=kindred_students;Username=kindred;Password=kindred_dev";
+        "Host=localhost;Port=11432;Database=kindred_students;Username=kindred;Password=kindred_dev";
 
     public DbSet<Student> Students => Set<Student>();
     public DbSet<Course> Courses => Set<Course>();

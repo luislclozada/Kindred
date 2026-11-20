@@ -5,7 +5,7 @@ namespace Kindred.KnowledgeGraph.Infrastructure;
 
 /// <summary>
 /// Wires the tool's collaborators from environment + repo conventions.
-/// Env: NEO4J_URI (default bolt://localhost:7687), NEO4J_USER, NEO4J_PASSWORD.
+/// Env: NEO4J_URI (default bolt://localhost:11687), NEO4J_USER, NEO4J_PASSWORD.
 /// </summary>
 public sealed class KgContext : IAsyncDisposable
 {
@@ -31,7 +31,7 @@ public sealed class KgContext : IAsyncDisposable
         if (!File.Exists(spineFile))
             throw new InvalidOperationException($"Capability spine not found: {spineFile}");
 
-        var uri = Environment.GetEnvironmentVariable("NEO4J_URI") ?? "bolt://localhost:7687";
+        var uri = Environment.GetEnvironmentVariable("NEO4J_URI") ?? "bolt://localhost:11687";
         var user = Environment.GetEnvironmentVariable("NEO4J_USER") ?? "neo4j";
         var password = Environment.GetEnvironmentVariable("NEO4J_PASSWORD") ?? "kindred_kg_dev";
         var driver = GraphDatabase.Driver(uri, AuthTokens.Basic(user, password));

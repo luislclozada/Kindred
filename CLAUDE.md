@@ -9,15 +9,19 @@ written and updated when work ships.
 
 | Thing | Where | Port |
 |---|---|---|
-| student-service (module Students) | `src/Services/StudentService/` | 5101 |
-| matching-service (module Matching) | `src/Services/MatchingService/` | 5102 |
-| gateway (YARP) | `src/Gateway/Kindred.Gateway/` | 5000 |
+| student-service (module Students) | `src/Services/StudentService/` | 11101 |
+| matching-service (module Matching) | `src/Services/MatchingService/` | 11102 |
+| gateway (YARP) | `src/Gateway/Kindred.Gateway/` | 11000 |
 | shared kernel | `src/SharedKernel/Kindred.SharedKernel/` | — |
-| frontend (Angular) | `apps/frontend/` | 4200 (proxies `/api` → 5000) |
+| frontend (Angular) | `apps/frontend/` | 11200 (proxies `/api` → 11000) |
 | knowledge graph tool | `tools/Kindred.KnowledgeGraph/` | — |
 | specs and changes | `openspec/specs/`, `openspec/changes/` | — |
 | capability spine | `knowledge-graph/capabilities.yaml` | — |
-| PostgreSQL · RabbitMQ · Neo4j | `docker-compose.dev.yml` (Neo4j under profile `kg`) | 5432 · 5672/15672 · 7474/7687 |
+| PostgreSQL · RabbitMQ · Neo4j | `docker-compose.dev.yml` (Neo4j under profile `kg`, the app under profile `app`) | 11432 · 11672/11673 · 11474/11687 |
+
+Ports are all in the 11000s so Kindred never collides with another stack on the usual ones:
+`11` + the last three digits of the usual port (5432 → 11432, 4200 → 11200). The one exception
+is the RabbitMQ UI, 15672 → 11673.
 
 Each service is three projects: `Kindred.<X>Service` (domain + application),
 `Kindred.<X>Service.Data` (EF Core), `Kindred.<X>Service.Api` (Minimal APIs).
@@ -25,7 +29,8 @@ Each service is three projects: `Kindred.<X>Service` (domain + application),
 ## Commands
 
 ```powershell
-./scripts/start-dev.ps1 -Kg        # infra + services + frontend (+ Neo4j); stop with ./scripts/stop-dev.ps1
+make kindred-start                 # everything in Docker: Postgres, RabbitMQ, Neo4j, both services, gateway, frontend
+make kindred-stop                  # stop everything; WIPE=1 also deletes all data
 dotnet build Kindred.slnx
 dotnet test tests/Kindred.StudentService.UnitTests
 npm run build --prefix apps/frontend
@@ -37,9 +42,17 @@ dotnet run --project tools/Kindred.KnowledgeGraph -- q query "<pregunta en espa�
 dotnet run --project tools/Kindred.KnowledgeGraph -- ingest resync   # after commits; then: ingest embed
 ```
 
+`make kindred-start` builds the app into images (`docker/service.Dockerfile` for the three .NET
+hosts, `apps/frontend/Dockerfile` for the site behind nginx) and runs them with the
+infrastructure from `docker-compose.dev.yml`. The running containers hold the code as it was
+when they were built: after changing code, run `make kindred-start` again to rebuild and
+restart what changed. A new setting a service needs inside Docker goes in that compose file.
+To run the app on the host instead, with hot reload: `./scripts/start-dev.ps1 -Kg` and
+`./scripts/stop-dev.ps1` (Windows).
+
 Start order matters: matching-service before student-service. The consumer declares its
 queue; student-service publishes enrollment events while it seeds, and events published
-before the queue exists are lost.
+before the queue exists are lost. The compose file and the script both enforce it.
 
 ## Rules
 

@@ -1,6 +1,7 @@
 <#
 .SYNOPSIS
-  Stops the Kindred services, the frontend and the Docker infrastructure.
+  Stops Kindred however it was started: the containers, and the services and frontend that
+  scripts/start-dev.ps1 runs on the host.
 
 .EXAMPLE
   ./scripts/stop-dev.ps1          # stop everything, keep the data
@@ -13,19 +14,23 @@ param(
 $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
 
-# Whatever listens on Kindred's ports: gateway, student-service, matching-service, frontend.
-foreach ($port in 5000, 5101, 5102, 4200) {
+# Containers first, so the only listeners left on Kindred's ports are host processes.
+$down = @('compose', '-f', 'docker-compose.dev.yml', '--profile', 'kg', '--profile', 'app', 'down')
+if ($Wipe) { $down += '-v' }
+& docker @down
+
+# Host mode: gateway, student-service, matching-service, frontend. Only ever dotnet or node -
+# never whatever else holds the port (Docker publishes container ports from its own process).
+foreach ($port in 11000, 11101, 11102, 11200) {
     Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue |
         Select-Object -ExpandProperty OwningProcess -Unique |
+        ForEach-Object { Get-Process -Id $_ -ErrorAction SilentlyContinue } |
+        Where-Object { $_.ProcessName -match '^(dotnet|node|Kindred\.)' } |
         ForEach-Object {
-            Stop-Process -Id $_ -Force -Confirm:$false -ErrorAction SilentlyContinue
+            Stop-Process -Id $_.Id -Force -Confirm:$false -ErrorAction SilentlyContinue
             Write-Host "  stopped the process on :$port"
         }
 }
-
-$down = @('compose', '-f', 'docker-compose.dev.yml', '--profile', 'kg', 'down')
-if ($Wipe) { $down += '-v' }
-& docker @down
 
 $suffix = if ($Wipe) { ' All data wiped.' } else { '' }
 Write-Host "Kindred stopped.$suffix" -ForegroundColor Green

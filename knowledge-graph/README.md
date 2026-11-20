@@ -43,7 +43,7 @@ en el texto; una en español llega a la capacidad y a la spec que describen lo q
 La herramienta lee el estado con commit del repo (`git ls-files`, `git rev-parse HEAD`), así que
 necesita un repositorio git con al menos un commit.
 
-Configuración: `NEO4J_URI` (por defecto `bolt://localhost:7687`), `NEO4J_USER` (`neo4j`),
+Configuración: `NEO4J_URI` (por defecto `bolt://localhost:11687`), `NEO4J_USER` (`neo4j`),
 `NEO4J_PASSWORD` (`kindred_kg_dev`), desde el entorno o un archivo `.env`. Ninguna API key de
 ningún tipo.
 

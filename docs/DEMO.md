@@ -15,9 +15,14 @@ Los comandos exactos, en orden. Ensaya en una rama desechable (ver "Reiniciar en
   `ingest resync`, el cambio de `IN_FLIGHT` → `CURRENT`, y el servidor MCP `kg`.
 - **Todavía no se ha corrido:** las tres skills `/kindred-*` en sí, manejadas por un agente en
   una sesión nueva, construyendo la feature real (los pasos 4–6 completos): eso es el ensayo.
-  Tampoco `scripts/start-dev.ps1` en su camino feliz: durante la preparación otro stack tenía
-  ocupados los puertos por defecto, así que solo se probó su revisión previa de puertos y los
-  servicios se levantaron a mano.
+- Verificado (2026-11-18): `make kindred-start` de principio a fin, todo en contenedores y en
+  los puertos 11000, con otro stack corriendo en los puertos habituales: las imágenes se
+  construyen, los siete contenedores quedan sanos, y la app responde a través de nginx y del
+  gateway. Tres arranques seguidos con base de datos vacía dieron 39 inscripciones y 39
+  entradas en las listas de curso (no se pierde ningún evento). También `make kindred-stop`.
+  `make kindred-stop WIPE=1` solo se revisó en seco.
+- **Todavía no se ha visto:** el paso 5 con contenedores, es decir, reconstruir las imágenes
+  después de que los agentes cambian el código.
 - Verificado en español, contra un grafo real (2026-11-18, commit `dd8d105`): el paso 3 completo.
   `ingest run` escribe 32 nodos y 29 aristas con 0 UNBOUND y 0 rejected; `ingest embed` cubre
   17 de 17 nodos. Las dos preguntas del paso 3 devuelven lo que se describe abajo: la capacidad
@@ -35,16 +40,17 @@ Los comandos exactos, en orden. Ensaya en una rama desechable (ver "Reiniciar en
 ## 0. Antes de la charla (una vez, fuera del escenario)
 
 ```powershell
-# Kindred necesita los puertos 5432, 5672, 15672, 7474, 7687, 5000, 5101, 5102, 4200.
-# Detén lo que los tenga ocupados (el script de arranque se niega a correr y dice quién es).
+# Kindred necesita los puertos 11432, 11672, 11673, 11474, 11687, 11000, 11101, 11102, 11200.
+# Detén lo que los tenga ocupados (si no, Docker dice "port is already allocated").
+# Para correr la app solo hacen falta Docker y GNU make (en Windows: `choco install make`).
 
 cd C:\Projects\KINDRED
-dotnet build Kindred.slnx                 # también compila el exe que corre el servidor MCP kg
-npm install --prefix apps/frontend        # solo si falta node_modules
+dotnet build Kindred.slnx                 # el exe que corre el servidor MCP kg, y lo que usan los agentes
+npm install --prefix apps/frontend        # solo si falta node_modules (lo usan los agentes en el paso 5)
 
 # Desde cero: bases de datos vacías, grafo vacío.
-./scripts/stop-dev.ps1 -Wipe
-./scripts/start-dev.ps1 -Kg               # postgres, rabbitmq, neo4j, servicios, frontend
+make kindred-stop WIPE=1
+make kindred-start                        # todo en Docker; la primera vez construye las imágenes (unos minutos)
 
 # Un nombre corto para la herramienta del grafo de conocimiento, en esta terminal:
 Set-Alias kg (Resolve-Path tools/Kindred.KnowledgeGraph/bin/Debug/net10.0/Kindred.KnowledgeGraph.exe)
@@ -55,19 +61,19 @@ MCP `kg` (`/mcp` debe listar `kg` con `kg_query` y `kg_stats`). No recompiles
 `tools/Kindred.KnowledgeGraph` mientras haya una sesión abierta: el servidor en ejecución
 bloquea el exe.
 
-Revisa: http://localhost:4200 muestra doce estudiantes; `git status` está limpio; `git log`
+Revisa: http://localhost:11200 muestra doce estudiantes; `git status` está limpio; `git log`
 muestra el commit de v1.
 
 ## 1. Recorrido por la app (2 min)
 
-http://localhost:4200 → entra como **Valeria Hernández** → **Mis cursos** (inscríbete en uno y
+http://localhost:11200 → entra como **Valeria Hernández** → **Mis cursos** (inscríbete en uno y
 dalo de baja otra vez; Valeria empieza con 4 cursos, así que inscríbete en dos más para llegar a
 seis y luego intenta un séptimo para mostrar la regla) → **Compañeros** (agrupados
 por curso, con insignias de cursos en común).
 
 Opcional, para mostrar que los dos servicios de verdad están separados:
-http://localhost:5000/api/v1/matching/courses/COMP-248/roster — la copia propia de
-matching-service, construida solo con eventos. UI de RabbitMQ: http://localhost:15672
+http://localhost:11000/api/v1/matching/courses/COMP-248/roster — la copia propia de
+matching-service, construida solo con eventos. UI de RabbitMQ: http://localhost:11673
 (`kindred` / `kindred_dev`).
 
 ## 2. "La IA tiene amnesia"
@@ -84,7 +90,7 @@ kg ingest embed      # embeddings locales, sin API key               → cobertu
 kg q stats           # qué hay adentro
 ```
 
-Navegador de Neo4j, para la imagen: http://localhost:7474 (`neo4j` / `kindred_kg_dev`)
+Navegador de Neo4j, para la imagen: http://localhost:11474 (`neo4j` / `kindred_kg_dev`)
 
 ```cypher
 MATCH (n:KgNode)-[r]->(m:KgNode) RETURN n, r, m
@@ -166,12 +172,12 @@ La ola 0 escribe el contrato del evento de integración; luego tres agentes trab
 tiempo; luego la compuerta de la ola: `dotnet build`, `dotnet test`, el build del frontend y las
 migraciones.
 
-**Antes de que corra la compuerta de la ola, cierra las tres ventanas de los servicios** (deja
-Docker corriendo): un servicio en ejecución bloquea sus dlls y el build falla con "archivo en
-uso". Después vuelve a levantarlos:
+La app sigue corriendo en sus contenedores mientras los agentes trabajan: los contenedores
+tienen su propia copia compilada, así que la compuerta puede compilar sin estorbos. Cuando
+termine, reconstruye las imágenes con el código nuevo:
 
 ```powershell
-./scripts/start-dev.ps1 -Kg      # Docker ya está arriba, así que esto solo recompila y vuelve a abrir los servicios
+make kindred-start      # reconstruye lo que cambió y reinicia esos contenedores; las migraciones nuevas se aplican al arrancar
 ```
 
 Luego muestra la feature en el navegador: define tu disponibilidad, abre **Mis grupos**.
@@ -208,17 +214,19 @@ git switch -c rehearsal            # antes del paso 4
 git switch main
 git branch -D rehearsal
 git clean -fd                      # borra todo lo que el ensayo dejó sin rastrear
-./scripts/stop-dev.ps1 -Wipe       # otra vez bases de datos vacías y un grafo vacío
+make kindred-stop WIPE=1           # otra vez bases de datos vacías y un grafo vacío
 ```
 
 ## Si algo sale mal en el escenario
 
 | Síntoma | Solución |
 |---|---|
-| `start-dev.ps1` dice que los puertos están ocupados | Dice qué contenedor o proceso es. Detenlo y vuelve a correrlo. |
-| Compañeros / listas de curso vacías después de arrancar desde cero | student-service cargó el seed antes de que matching-service creara su cola. `./scripts/stop-dev.ps1 -Wipe` y arranca otra vez. |
+| `make kindred-start` falla con "port is already allocated" | Otro proceso tiene un puerto de los 11000. `docker ps` y `netstat -ano` dicen cuál; detenlo y vuelve a correrlo. |
+| `make kindred-start` falla al construir una imagen | El error de compilación sale en la terminal. `dotnet build Kindred.slnx` da el mismo error más rápido. |
+| Un servicio no queda sano | `docker logs kindred-student-service` (o `kindred-matching-service`, `kindred-gateway`). |
+| Compañeros / listas de curso vacías después de arrancar desde cero | student-service cargó el seed antes de que matching-service creara su cola. `make kindred-stop WIPE=1` y arranca otra vez. |
 | `kg …` imprime `[knowledge-graph] STALE` | `kg ingest resync`, luego `kg ingest embed`. |
 | `ingest run` lista algo como UNBOUND | Agrega su nombre como alias en `knowledge-graph/capabilities.yaml` y vuelve a correrlo. (Vale la pena mostrarlo una vez: es el grafo negándose a adivinar.) |
 | El agente no tiene la herramienta `kg_query` | El exe del MCP no estaba compilado cuando arrancó la sesión. La CLI (`kg q query …`) hace lo mismo. |
-| El build falla con "file is being used by another process" | Una ventana de servicio o una sesión con el MCP `kg` tiene tomada la dll. Ciérrala y vuelve a compilar. |
+| El build falla con "file is being used by another process" | Una sesión con el MCP `kg` tiene tomado el exe (o un servicio arrancado con `scripts/start-dev.ps1`). Ciérrala y vuelve a compilar. |
 | Neo4j está abajo | Cada skill lo dice y sigue adelante; corre los pasos del grafo después. |
